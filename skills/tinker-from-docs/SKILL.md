@@ -10,8 +10,8 @@ description: Fine-tune LLMs using the Tinker API. Covers supervised fine-tuning,
 Tinker is a training API for large language models from Thinking Machines Lab. It provides:
 
 - **Supervised Fine-Tuning (SFT)**: Train models on instruction/completion pairs
-- **Reinforcement Learning (RL)**: GRPO, PPO, and policy gradient methods
-- **Vision-Language Models**: Support for Qwen3-VL series
+- **Reinforcement Learning (RL)**: PPO and policy gradient losses; cookbook patterns include GRPO-like group rollouts/advantage centering
+- **Vision-Language Models**: VLM support via Qwen3-VL
 - **LoRA Training**: Efficient parameter-efficient fine-tuning
 
 Two abstraction levels:
@@ -41,6 +41,7 @@ export TINKER_API_KEY=your_api_key_here
 ## Minimal Example
 
 ```python
+import numpy as np
 import tinker
 from tinker import types
 
@@ -54,13 +55,16 @@ tokenizer = training_client.get_tokenizer()
 # Prepare data
 prompt = "English: hello\nPig Latin:"
 completion = " ello-hay\n"
-tokens = tokenizer.encode(prompt) + tokenizer.encode(completion, add_special_tokens=False)
-weights = [0] * len(tokenizer.encode(prompt)) + [1] * len(tokenizer.encode(completion, add_special_tokens=False))
+prompt_tokens = tokenizer.encode(prompt, add_special_tokens=True)
+completion_tokens = tokenizer.encode(completion, add_special_tokens=False)
+tokens = prompt_tokens + completion_tokens
+weights = np.array(([0] * len(prompt_tokens)) + ([1] * len(completion_tokens)), dtype=np.float32)
+target_tokens = np.array(tokens[1:], dtype=np.int64)
 
 datum = types.Datum(
-    model_input=types.ModelInput.from_ints(tokens[:-1]),
+    model_input=types.ModelInput.from_ints(tokens=tokens[:-1]),
     loss_fn_inputs={
-        "target_tokens": tokens[1:],
+        "target_tokens": target_tokens,
         "weights": weights[1:]
     }
 )
@@ -73,10 +77,10 @@ fwdbwd.result(); optim.result()
 # Sample
 sampling_client = training_client.save_weights_and_get_sampling_client(name="v1")
 result = sampling_client.sample(
-    prompt=types.ModelInput.from_ints(tokenizer.encode("English: world\nPig Latin:")),
+    prompt=types.ModelInput.from_ints(tokens=tokenizer.encode("English: world\nPig Latin:", add_special_tokens=True)),
     sampling_params=types.SamplingParams(max_tokens=20),
     num_samples=1
-)
+).result()
 print(tokenizer.decode(result.sequences[0].tokens))
 ```
 
@@ -108,7 +112,7 @@ from tinker_cookbook.tokenizer_utils import get_tokenizer
 
 | Scenario | Approach |
 |----------|----------|
-| Standard SFT with HF/JSONL data | Cookbook `ChatDatasetBuilder` + `train.main()` |
+| Standard SFT with HF/JSONL data | Cookbook `ChatDatasetBuilder` + `tinker_cookbook.supervised.train.main()` |
 | Custom preprocessing | Custom `SupervisedDataset` class |
 | Large datasets (>1M) | `StreamingSupervisedDatasetFromHFDataset` |
 | RL / GRPO | Cookbook RL patterns |

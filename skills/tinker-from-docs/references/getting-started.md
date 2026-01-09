@@ -23,22 +23,21 @@ tokenizer = training_client.get_tokenizer()
 ## Preparing Training Data
 
 ```python
+import numpy as np
 from tinker import types
 
 def process_example(example: dict, tokenizer) -> types.Datum:
     prompt = f"English: {example['input']}\nPig Latin:"
     prompt_tokens = tokenizer.encode(prompt, add_special_tokens=True)
-    prompt_weights = [0] * len(prompt_tokens)
 
     completion_tokens = tokenizer.encode(f" {example['output']}\n\n", add_special_tokens=False)
-    completion_weights = [1] * len(completion_tokens)
-
     tokens = prompt_tokens + completion_tokens
-    weights = prompt_weights + completion_weights
+    weights = np.array(([0] * len(prompt_tokens)) + ([1] * len(completion_tokens)), dtype=np.float32)
+    target_tokens = np.array(tokens[1:], dtype=np.int64)
 
     return types.Datum(
         model_input=types.ModelInput.from_ints(tokens=tokens[:-1]),
-        loss_fn_inputs=dict(weights=weights[1:], target_tokens=tokens[1:])
+        loss_fn_inputs=dict(weights=weights[1:], target_tokens=target_tokens)
     )
 ```
 
@@ -80,7 +79,7 @@ for _ in range(6):
 sampling_client = training_client.save_weights_and_get_sampling_client(name='my-model')
 
 # Sample
-prompt = types.ModelInput.from_ints(tokenizer.encode("English: coffee break\nPig Latin:"))
+prompt = types.ModelInput.from_ints(tokens=tokenizer.encode("English: coffee break\nPig Latin:", add_special_tokens=True))
 params = types.SamplingParams(max_tokens=20, temperature=0.0, stop=["\n"])
 future = sampling_client.sample(prompt=prompt, sampling_params=params, num_samples=8)
 result = future.result()
@@ -93,7 +92,7 @@ for i, seq in enumerate(result.sequences):
 
 ```python
 # Get prompt logprobs
-prompt = types.ModelInput.from_ints(tokenizer.encode("How many r's are in strawberry?"))
+prompt = types.ModelInput.from_ints(tokens=tokenizer.encode("How many r's are in strawberry?", add_special_tokens=True))
 sample_response = sampling_client.sample(
     prompt=prompt,
     num_samples=1,

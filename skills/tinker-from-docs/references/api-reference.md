@@ -53,7 +53,7 @@ types.Datum(
 
 ### ModelInput
 ```python
-types.ModelInput.from_ints([1, 2, 3])  # From token list
+types.ModelInput.from_ints(tokens=[1, 2, 3])  # From token list
 types.ModelInput(chunks=[EncodedTextChunk, ImageChunk, ...])  # Multi-modal
 model_input.to_ints()  # Convert to token list
 model_input.length()   # Total context length

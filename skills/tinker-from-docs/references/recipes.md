@@ -238,7 +238,7 @@ def main(config: Config):
                 ob_len = len(prompt_tokens) - 1
 
                 datum = types.Datum(
-                    model_input=types.ModelInput.from_ints(tokens[:-1]),
+                    model_input=types.ModelInput.from_ints(tokens=tokens[:-1]),
                     loss_fn_inputs={
                         "target_tokens": TensorData.from_torch(torch.tensor(tokens[1:])),
                         "logprobs": TensorData.from_torch(torch.tensor([0.0]*ob_len + list(seq.logprobs))),

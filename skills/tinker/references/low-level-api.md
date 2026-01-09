@@ -458,6 +458,7 @@ You can use Cookbook utilities with low-level training:
 ```python
 from tinker_cookbook.renderers import get_renderer, TrainOnWhat
 from tinker_cookbook.tokenizer_utils import get_tokenizer
+from tinker_cookbook.supervised.common import datum_from_model_input_weights
 
 # Setup renderer
 tokenizer = get_tokenizer("meta-llama/Llama-3.1-8B")
@@ -472,24 +473,11 @@ messages = [
     {"role": "assistant", "content": "4"},
 ]
 
-# Build supervised example
-example = renderer.build_supervised_example(
-    messages=messages,
+model_input, weights = renderer.build_supervised_example(
+    messages,
     train_on_what=TrainOnWhat.ALL_ASSISTANT_MESSAGES,
 )
-
-# Create Datum from rendered example
-datum = types.Datum(
-    model_input=types.ModelInput([example.chunk]),
-    loss_fn_inputs={
-        "target_tokens": types.TensorData.from_numpy(
-            np.array(example.target_tokens, dtype=np.int64)
-        ),
-        "weights": types.TensorData.from_numpy(
-            np.array(example.weights, dtype=np.float32)
-        ),
-    },
-)
+datum = datum_from_model_input_weights(model_input, weights, max_length=2048)
 ```
 
 ### Using conversation_to_datum
@@ -504,9 +492,9 @@ messages = [
 ]
 
 datum = conversation_to_datum(
-    messages=messages,
-    renderer=renderer,
-    max_length=2048,
+    messages,
+    renderer,
+    2048,
     train_on_what=TrainOnWhat.ALL_ASSISTANT_MESSAGES,
 )
 ```

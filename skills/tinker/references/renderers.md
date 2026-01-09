@@ -63,21 +63,15 @@ messages = [
     {"role": "assistant", "content": "4"},
 ]
 
-example = renderer.build_supervised_example(
-    messages=messages,
+model_input, weights = renderer.build_supervised_example(
+    messages,
     train_on_what=TrainOnWhat.ALL_ASSISTANT_MESSAGES,
 )
-
-# Returns object with:
-# - example.chunk: EncodedTextChunk with tokens
-# - example.target_tokens: List[int] (next-token targets)
-# - example.weights: List[float] (loss weights)
 ```
 
-**Fields**:
-- `chunk`: Token sequence as `EncodedTextChunk`
-- `target_tokens`: Target tokens for next-token prediction
-- `weights`: Loss weights (0.0 = ignore, 1.0 = train)
+**Returns**:
+- `model_input`: `tinker.ModelInput` (a list of `ModelInputChunk` objects, e.g. `EncodedTextChunk`, `ImageChunk`, etc.)
+- `weights`: 1D tensor of per-token loss weights (0.0 = ignore, 1.0 = train)
 
 **How weights work**:
 - User messages: weights = 0.0 (don't train on prompts)
@@ -138,7 +132,7 @@ Converts generated tokens back to message:
 output_tokens = result.sequences[0].tokens
 
 # Parse back to message
-message = renderer.parse_response(output_tokens)
+message, success = renderer.parse_response(output_tokens)
 
 # Returns dict: {"role": "assistant", "content": "..."}
 ```
@@ -310,8 +304,7 @@ Manual renderer usage in custom dataset:
 
 ```python
 from tinker_cookbook.supervised.types import SupervisedDataset
-from tinker.types import Datum, ModelInput, TensorData
-import numpy as np
+from tinker_cookbook.supervised.common import datum_from_model_input_weights
 
 class MyDataset(SupervisedDataset):
     def __iter__(self):
@@ -319,23 +312,12 @@ class MyDataset(SupervisedDataset):
             messages = self._create_messages(item)
 
             # Use renderer to build example
-            example = self.renderer.build_supervised_example(
-                messages=messages,
+            model_input, weights = self.renderer.build_supervised_example(
+                messages,
                 train_on_what=TrainOnWhat.ALL_ASSISTANT_MESSAGES,
             )
 
-            # Create Datum from rendered example
-            yield Datum(
-                model_input=ModelInput([example.chunk]),
-                loss_fn_inputs={
-                    "target_tokens": TensorData.from_numpy(
-                        np.array(example.target_tokens, dtype=np.int64)
-                    ),
-                    "weights": TensorData.from_numpy(
-                        np.array(example.weights, dtype=np.float32)
-                    ),
-                },
-            )
+            yield datum_from_model_input_weights(model_input, weights)
 ```
 
 ## Format-Specific Details

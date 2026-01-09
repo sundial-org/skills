@@ -86,7 +86,7 @@ Cookbook uses builder pattern for dataset preparation:
 
 ### Training Execution
 
-All training runs asynchronously:
+Tinker has both sync and async APIs; Cookbook uses async for performance-critical loops and sync for some pedagogical examples:
 
 ```python
 from tinker_cookbook.supervised import train

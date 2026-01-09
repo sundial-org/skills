@@ -23,8 +23,7 @@ Tinker supports vision-language models:
 ### Image Processing
 
 ```python
-from tinker_cookbook.model_info import get_image_processor
-import tinker
+from tinker_cookbook.image_processing_utils import get_image_processor
 
 # Get image processor for model
 image_processor = get_image_processor("Qwen/Qwen2-VL-7B-Instruct")
@@ -71,7 +70,7 @@ from tinker.types import ModelInput, ImageChunk
 with open("image.jpg", "rb") as f:
     image_bytes = f.read()
 
-image_chunk = ImageChunk(image_bytes)
+image_chunk = ImageChunk(data=image_bytes, format="jpeg")
 
 # Option 2: Image asset pointer (for remote images)
 from tinker.types import ImageAssetPointerChunk
@@ -83,7 +82,7 @@ model_input = ModelInput([image_chunk, text_chunk])
 ```
 
 **ImageChunk Types**:
-- `ImageChunk(bytes)`: Direct image data
+- `ImageChunk(data=..., format=...)`: Direct image data
 - `ImageAssetPointerChunk(asset_id)`: Reference to uploaded asset
 
 ## Custom Vision Dataset Pattern
@@ -94,9 +93,10 @@ For vision tasks, implement custom `SupervisedDataset`:
 
 ```python
 from tinker_cookbook.supervised.types import SupervisedDataset
+from tinker_cookbook.supervised.common import datum_from_model_input_weights
 from tinker.types import Datum, ModelInput, TensorData, ImageChunk
 from tinker_cookbook.renderers import get_renderer, TrainOnWhat
-from tinker_cookbook.model_info import get_image_processor
+from tinker_cookbook.image_processing_utils import get_image_processor
 from tinker_cookbook.tokenizer_utils import get_tokenizer
 import chz
 import numpy as np
@@ -147,24 +147,12 @@ class VisionDataset(SupervisedDataset):
             # Create messages with image
             messages = self._create_messages(image, label)
 
-            # Build supervised example
-            example = self.renderer.build_supervised_example(
-                messages=messages,
+            # Build supervised example -> Datum
+            model_input, weights = self.renderer.build_supervised_example(
+                messages,
                 train_on_what=TrainOnWhat.LAST_ASSISTANT_MESSAGE,
             )
-
-            # Create Datum
-            yield Datum(
-                model_input=ModelInput([example.chunk]),
-                loss_fn_inputs={
-                    "target_tokens": TensorData.from_numpy(
-                        np.array(example.target_tokens, dtype=np.int64)
-                    ),
-                    "weights": TensorData.from_numpy(
-                        np.array(example.weights, dtype=np.float32)
-                    ),
-                },
-            )
+            yield datum_from_model_input_weights(model_input, weights, self.config.max_length)
 
     def _load_image(self, image_path):
         """Load image and convert to bytes"""
@@ -375,9 +363,11 @@ import numpy as np
 
 from tinker_cookbook.supervised import train
 from tinker_cookbook.supervised.types import SupervisedDataset
+from tinker_cookbook.supervised.common import datum_from_model_input_weights
 from tinker.types import Datum, ModelInput, TensorData
 from tinker_cookbook.renderers import get_renderer, TrainOnWhat
-from tinker_cookbook.model_info import get_image_processor, get_recommended_renderer_name
+from tinker_cookbook.image_processing_utils import get_image_processor
+from tinker_cookbook.model_info import get_recommended_renderer_name
 from tinker_cookbook.tokenizer_utils import get_tokenizer
 
 @chz.chz
@@ -437,23 +427,12 @@ class ClassifierDataset(SupervisedDataset):
             ]
 
             # Build supervised example
-            example = self.renderer.build_supervised_example(
-                messages=messages,
+            model_input, weights = self.renderer.build_supervised_example(
+                messages,
                 train_on_what=TrainOnWhat.LAST_ASSISTANT_MESSAGE,
             )
 
-            # Create Datum
-            yield Datum(
-                model_input=ModelInput([example.chunk]),
-                loss_fn_inputs={
-                    "target_tokens": TensorData.from_numpy(
-                        np.array(example.target_tokens, dtype=np.int64)
-                    ),
-                    "weights": TensorData.from_numpy(
-                        np.array(example.weights, dtype=np.float32)
-                    ),
-                },
-            )
+            yield datum_from_model_input_weights(model_input, weights, self.config.max_length)
 
     def _load_image(self, image_path):
         """Load and convert image to bytes"""
@@ -674,7 +653,7 @@ for item in dataset:
 # Vision-specific
 from PIL import Image
 import io
-from tinker_cookbook.model_info import get_image_processor
+from tinker_cookbook.image_processing_utils import get_image_processor
 
 # Core types
 from tinker.types import Datum, ModelInput, TensorData, ImageChunk

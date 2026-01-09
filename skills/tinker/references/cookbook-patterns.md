@@ -19,7 +19,7 @@ class CLIConfig:
     file_path: str = "data.jsonl"
     max_length: int = 2048
 
-async def train_async(cli_config: CLIConfig):
+async def main(cli_config: CLIConfig):
     # Build training config
     config = train.Config(
         model_name=cli_config.model_name,
@@ -29,17 +29,13 @@ async def train_async(cli_config: CLIConfig):
     )
     await train.main(config)
 
-def main():
-    cli_config = chz.nested_entrypoint(CLIConfig)
-    asyncio.run(train_async(cli_config))
-
 if __name__ == "__main__":
-    main()
+    asyncio.run(chz.nested_entrypoint(main))
 ```
 
 **Key Points**:
 - Decorate config class with `@chz.chz`
-- Use `chz.nested_entrypoint(ConfigClass)` to parse CLI args
+- Use `asyncio.run(chz.nested_entrypoint(main))` to parse CLI args and run
 - Supports automatic `--help` generation
 - Field types determine CLI argument parsing
 
@@ -54,6 +50,7 @@ import asyncio
 from tinker_cookbook.supervised import train
 from tinker_cookbook.supervised.types import ChatDatasetBuilderCommonConfig
 from tinker_cookbook.model_info import get_recommended_renderer_name
+from tinker_cookbook.renderers import TrainOnWhat
 
 def build_config_blueprint() -> chz.Blueprint[train.Config]:
     model_name = "meta-llama/Llama-3.1-8B"
@@ -147,10 +144,10 @@ class MyDatasetBuilder(ChatDatasetBuilder):
             ]
             # Use conversation_to_datum for tokenization
             return conversation_to_datum(
-                messages=messages,
-                renderer=self.renderer,
-                max_length=self.common_config.max_length,
-                train_on_what=self.common_config.train_on_what,
+                messages,
+                self.renderer,
+                self.common_config.max_length,
+                train_on_what=self.common_config.train_on_what or TrainOnWhat.ALL_ASSISTANT_MESSAGES,
             )
 
         # Wrap datasets
@@ -178,7 +175,7 @@ class MyDatasetBuilder(ChatDatasetBuilder):
 - Return `(train_dataset, test_dataset)` tuple
 
 **conversation_to_datum Parameters**:
-- `messages`: List of dicts with "role" and "content"
+- `conversation`: List of dicts with "role" and "content"
 - `renderer`: From `self.renderer`
 - `max_length`: Maximum sequence length
 - `train_on_what`: `TrainOnWhat` enum value
@@ -313,11 +310,10 @@ For complex preprocessing or non-standard data formats:
 
 ```python
 from tinker_cookbook.supervised.types import SupervisedDataset
-from tinker.types import Datum, ModelInput, TensorData
-from tinker_cookbook.renderers import get_renderer
+from tinker_cookbook.supervised.common import datum_from_model_input_weights
+from tinker_cookbook.renderers import get_renderer, TrainOnWhat
 from tinker_cookbook.tokenizer_utils import get_tokenizer
 import chz
-import numpy as np
 
 @chz.chz
 class CustomDatasetConfig:
@@ -356,24 +352,11 @@ class CustomDataset(SupervisedDataset):
             # Your custom preprocessing
             messages = self._preprocess_item(item)
 
-            # Use renderer to build supervised example
-            example = self.renderer.build_supervised_example(
-                messages=messages,
+            model_input, weights = self.renderer.build_supervised_example(
+                messages,
                 train_on_what=TrainOnWhat.ALL_ASSISTANT_MESSAGES,
             )
-
-            # Create Datum
-            yield Datum(
-                model_input=ModelInput([example.chunk]),
-                loss_fn_inputs={
-                    "target_tokens": TensorData.from_numpy(
-                        np.array(example.target_tokens, dtype=np.int64)
-                    ),
-                    "weights": TensorData.from_numpy(
-                        np.array(example.weights, dtype=np.float32)
-                    ),
-                },
-            )
+            yield datum_from_model_input_weights(model_input, weights, self.config.max_length)
 
     def _preprocess_item(self, item):
         # Your custom preprocessing logic
@@ -439,7 +422,7 @@ From `tinker_cookbook.renderers`:
 
 ## Async Execution
 
-All training must run asynchronously:
+Tinker has both sync and async APIs; many Cookbook training loops are async.
 
 ### With @chz.chz:
 
@@ -450,9 +433,8 @@ async def train_async(cli_config: CLIConfig):
     # Run training
     await train.main(config)
 
-def main():
-    cli_config = chz.nested_entrypoint(CLIConfig)
-    asyncio.run(train_async(cli_config))
+if __name__ == "__main__":
+    asyncio.run(chz.nested_entrypoint(train_async))
 ```
 
 ### With Blueprint:
@@ -543,12 +525,8 @@ async def train_async(cli_config: CLIConfig):
 
     await train.main(config)
 
-def main():
-    cli_config = chz.nested_entrypoint(CLIConfig)
-    asyncio.run(train_async(cli_config))
-
 if __name__ == "__main__":
-    main()
+    asyncio.run(chz.nested_entrypoint(train_async))
 ```
 
 ### Example 2: File-Based with Blueprint

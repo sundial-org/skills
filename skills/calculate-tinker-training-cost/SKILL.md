@@ -180,7 +180,6 @@ Cost: 8.0M × $2.04/M = $16.32
 ## Important Notes
 
 1. **LoRA Fine-Tuning**: Tinker uses Low-Rank Adaptation (LoRA), not full fine-tuning
-2. **Free Credits**: New users receive $150 in free credits
-3. **Token Counting**: Always use the model's native tokenizer for accurate counts - different tokenizers produce different token counts for the same text
-4. **Vision Models**: VL models have higher costs due to image processing overhead
-5. **trust_remote_code**: Required for some tokenizers (Qwen, DeepSeek)
+2. **Token Counting**: Always use the model's native tokenizer for accurate counts - different tokenizers produce different token counts for the same text
+3. **Vision Models**: VL models have higher costs due to image processing overhead
+4. **trust_remote_code**: Required for some tokenizers (Qwen, DeepSeek)

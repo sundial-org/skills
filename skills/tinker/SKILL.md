@@ -1,5 +1,5 @@
 ---
-name: tinker-from-docs
+name: tinker
 description: Fine-tune LLMs using the Tinker API. Covers supervised fine-tuning, reinforcement learning, LoRA training, vision-language models, and both high-level Cookbook patterns and low-level API usage.
 ---
 

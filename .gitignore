@@ -1,0 +1,8 @@
+cli/dist
+**node_modules
+**.claude**
+**.codex**
+**.gemini**
+cli/test/logs/
+./publish.sh
+**scratch**

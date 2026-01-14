@@ -1,0 +1,43 @@
+{
+  "name": "@sundial-ai/cli",
+  "version": "0.1.1",
+  "description": "Customize your agent's skills",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "sun": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "test": "./test/run-all.sh"
+  },
+  "keywords": [
+    "cli",
+    "agents",
+    "skills",
+    "claude",
+    "codex",
+    "gemini"
+  ],
+  "author": "Belinda Mo <belinda@sundialscientific.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@inquirer/prompts": "^8.2.0",
+    "@sundial-ai/cli": "^0.0.1",
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "degit": "^2.8.4",
+    "fs-extra": "^11.2.0",
+    "fuzzysort": "^3.0.2",
+    "inquirer": "^9.3.7",
+    "ora": "^8.1.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/inquirer": "^9.0.9",
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

@@ -12,8 +12,7 @@ export function isGithubUrl(input: string): boolean {
 }
 
 /**
- * Normalize a GitHub URL to degit format.
- * Converts: https://github.com/user/repo/tree/branch/path -> user/repo/path#branch
+ * Normalize a GitHub URL to standard format: user/repo/path#branch
  */
 function normalizeGithubUrl(url: string): string {
   let location = url;
@@ -22,7 +21,6 @@ function normalizeGithubUrl(url: string): string {
   location = location.replace(/^https?:\/\//, '');
 
   // Handle github.com/user/repo/tree/branch/path format
-  // Convert to degit format: user/repo/path#branch
   const treeMatch = location.match(/^github\.com\/([^/]+)\/([^/]+)\/tree\/([^/]+)\/(.+)$/);
   if (treeMatch) {
     const [, user, repo, branch, subpath] = treeMatch;
@@ -65,13 +63,13 @@ export function isLocalPath(input: string): boolean {
 export async function resolveSkillSource(input: string): Promise<SkillSource> {
   // 1. Check shortcuts first
   if (await isShortcut(input)) {
-    const degitPath = await getShortcutUrl(input);
-    if (!degitPath) {
-      throw new Error(`Skill "${input}" found in registry but has no degit_path`);
+    const githubPath = await getShortcutUrl(input);
+    if (!githubPath) {
+      throw new Error(`Skill "${input}" found in registry but has no github path`);
     }
     return {
       type: 'shortcut',
-      location: degitPath,
+      location: githubPath,
       originalInput: input
     };
   }

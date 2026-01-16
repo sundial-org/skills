@@ -74,38 +74,71 @@ export async function installFromLocal(
 }
 
 /**
- * Install skill(s) from GitHub using degit.
- * After downloading, checks if it's a skill or searches direct children for SKILL.md.
+ * Parse GitHub location into components.
+ * Format: user/repo/subpath#branch or user/repo#branch or user/repo/subpath
+ */
+function parseGithubLocation(location: string): { 
+  repoUrl: string; 
+  subpath: string | null; 
+  branch: string | null;
+} {
+  let loc = location;
+  let branch: string | null = null;
+  
+  const hashIndex = loc.indexOf('#');
+  if (hashIndex !== -1) {
+    branch = loc.slice(hashIndex + 1);
+    loc = loc.slice(0, hashIndex);
+  }
+  
+  const parts = loc.split('/');
+  if (parts.length < 2) {
+    throw new Error(`Invalid GitHub location: ${location}`);
+  }
+  
+  const user = parts[0];
+  const repo = parts[1];
+  const subpath = parts.length > 2 ? parts.slice(2).join('/') : null;
+  
+  return {
+    repoUrl: `https://github.com/${user}/${repo}.git`,
+    subpath,
+    branch
+  };
+}
+
+/**
+ * Install skill(s) from GitHub using sparse checkout.
+ * Only downloads the specific subdirectory instead of the full repo.
  */
 export async function installFromGithub(
   source: SkillSource,
   agentFlag: AgentType,
   isGlobal: boolean
 ): Promise<string[]> {
-  // Create a temp directory to download to
-  const tempDir = path.join(os.tmpdir(), `sun-install-${Date.now()}`);
+  const tempDir = path.join(os.tmpdir(), `skill-install-${Date.now()}`);
+  const { repoUrl, subpath, branch } = parseGithubLocation(source.location);
 
   try {
-    // Download using degit
-    await fs.ensureDir(tempDir);
-    try {
-      execFileSync('npx', ['degit', source.location, tempDir], {
-        stdio: 'pipe'
-      });
-    } catch (error) {
-      const err = error as Error & { stderr?: Buffer };
-      const stderr = err.stderr?.toString() || err.message;
-      throw new Error(`Failed to download from GitHub: ${stderr}`);
-    }
+    execFileSync('git', [
+      'clone', '--filter=blob:none', '--no-checkout', '--depth=1',
+      ...(branch ? ['--branch', branch] : []),
+      repoUrl, tempDir
+    ], { stdio: 'pipe' });
 
-    // Find skills in downloaded content (checks itself and direct children)
-    const skillDirs = await findSkillDirectories(tempDir);
+    if (subpath) {
+      execFileSync('git', ['sparse-checkout', 'init', '--cone'], { cwd: tempDir, stdio: 'pipe' });
+      execFileSync('git', ['sparse-checkout', 'set', subpath], { cwd: tempDir, stdio: 'pipe' });
+    }
+    execFileSync('git', ['checkout'], { cwd: tempDir, stdio: 'pipe' });
+
+    const skillRoot = subpath ? path.join(tempDir, subpath) : tempDir;
+    const skillDirs = await findSkillDirectories(skillRoot);
 
     if (skillDirs.length === 0) {
       throw new Error(`No skills found in "${source.originalInput}". A skill must contain a SKILL.md file.`);
     }
 
-    // Install each skill found (name comes from SKILL.md frontmatter)
     const installedSkills: string[] = [];
     for (const skillDir of skillDirs) {
       const skillName = await installSkillDirectory(skillDir, agentFlag, isGlobal);
@@ -113,8 +146,11 @@ export async function installFromGithub(
     }
 
     return installedSkills;
+  } catch (error) {
+    const err = error as Error & { stderr?: Buffer };
+    const stderr = err.stderr?.toString() || err.message;
+    throw new Error(`Failed to download from GitHub: ${stderr}`);
   } finally {
-    // Clean up temp directory
     await fs.remove(tempDir).catch(() => {});
   }
 }

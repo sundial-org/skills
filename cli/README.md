@@ -1,28 +1,41 @@
 # Sundial CLI
 
-`sundial-hub` is a simple way to manage skills for your AI coding agents. 
+`sundial-hub` is a CLI to easily add skills to your AI coding agents. 
 
-Add skills in 3 ways:
-- From a Github repo url that contains skills
-- From a local folder
+Add skills from 3 sources with `sun add`:
+- A Github repo url that contains skills (ex: [github.com/anthropics/skills](https://github.com/anthropics/skills))
+- From a local folder (ex: `.claude/skills/my-custom-skill`)
 - From the Sundial [registry](https://sundialscientific.com)
 
 Supported agents:
-- Claude Code
-- Codex
-- Gemini
+- Claude Code (`.claude/`)
+- Codex (`.codex/`)
+- Gemini (`.gemini/`)
 
+
+## Installation
 ```bash
 npm install -g sundial-hub
+```
 
+## Usage
+
+Add skills:
 ```bash
-sun add tinker                    # Add from [registry](https://sundialscientific.com)
+sun add skill-creator             # Add `skill-creator` skill from [registry](https://sundialscientific.com)
+sun add skill-creator --global    # Add skill globally to ~/.claude (or other agents). 
 sun add github.com/user/skill     # Add from GitHub. You can add from a root or subdirectory Github url
 sun add ./my-skill                # Add from local path
+```
 
-sun list                          # Browse available skills ([registry](https://sundialscientific.com))
-sun installed                     # See installed skills
+If a local project is detected, then the skill will be added to the local project. Else, it will add it globally. You can force global installation with the `--global` flag! 
+
+Other commands:
+```bash
+sun config                        # Configure your default agent(s)
+sun installed                     # See installed skills. `sun show` works to
 sun remove tinker                 # Remove a skill
+sun list                          # Browse available skills ([registry](https://sundialscientific.com))
 ```
 
 

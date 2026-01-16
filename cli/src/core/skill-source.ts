@@ -2,7 +2,6 @@ import fs from 'fs-extra';
 import path from 'path';
 import { isShortcut, getShortcutUrl } from '../utils/registry.js';
 import type { SkillSource } from '../types/index.js';
-import { trackDownload } from '../lib/supabase.js';
 
 /**
  * Check if input looks like a GitHub URL or reference.
@@ -70,8 +69,6 @@ export async function resolveSkillSource(input: string): Promise<SkillSource> {
     if (!degitPath) {
       throw new Error(`Skill "${input}" found in registry but has no degit_path`);
     }
-    // Track download for registry skills
-    await trackDownload(input);
     return {
       type: 'shortcut',
       location: degitPath,

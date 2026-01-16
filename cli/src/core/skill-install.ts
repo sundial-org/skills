@@ -6,6 +6,7 @@ import { getAgentByFlag } from './agents.js';
 import { resolveSkillSource } from './skill-source.js';
 import { findSkillDirectories, readSkillMetadata } from './skill-info.js';
 import type { AgentType, SkillSource } from '../types/index.js';
+import { trackDownload } from '../lib/supabase.js';
 
 /**
  * Get the destination path for installing a skill.
@@ -141,6 +142,10 @@ export async function installSkill(
       break;
     default:
       throw new Error(`Unknown source type: ${(source as SkillSource).type}`);
+  }
+
+  if (source.type === 'shortcut') {
+    await trackDownload(source.originalInput);
   }
 
   return { skillNames, source };

@@ -1,9 +1,9 @@
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
-import { SUPPORTED_AGENTS } from './agents.js';
-import { computeContentHash } from './skill-hash.js';
-import type { SkillMetadata, SkillInstallation, AgentType } from '../types/index.js';
+import { SUPPORTED_AGENTS } from './agents';
+import { computeContentHash } from './skill-hash';
+import type { SkillMetadata, SkillInstallation, AgentType } from '../types/index';
 
 /**
  * Parse YAML-like frontmatter from SKILL.md content.

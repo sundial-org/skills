@@ -9,8 +9,8 @@ import os from 'os';
 import fs from 'fs-extra';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { SUPPORTED_AGENTS } from '../core/agents.js';
-import { readSkillMetadata } from '../core/skill-info.js';
+import { SUPPORTED_AGENTS } from '../core/agents';
+import { readSkillMetadata } from '../core/skill-info';
 
 const execAsync = promisify(exec);
 

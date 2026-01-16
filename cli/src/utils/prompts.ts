@@ -1,7 +1,7 @@
-import { checkbox, confirm } from '@inquirer/prompts';
+import { checkbox } from '@inquirer/prompts';
 import chalk from 'chalk';
-import { SUPPORTED_AGENTS } from '../core/agents.js';
-import type { AgentType } from '../types/index.js';
+import { SUPPORTED_AGENTS } from '../core/agents';
+import type { AgentType } from '../types/index';
 
 /**
  * Show an interactive checkbox UI for selecting default agents.
@@ -44,11 +44,4 @@ export async function promptAgentSelection(
   });
 
   return selectedAgents;
-}
-
-export async function confirmAction(message: string): Promise<boolean> {
-  return confirm({
-    message,
-    default: true
-  });
 }

@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
-import type { SunConfig, AgentType } from '../types/index.js';
+import type { SunConfig, AgentType } from '../types/index';
 
 const CONFIG_DIR = path.join(os.homedir(), '.sun');
 const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json');

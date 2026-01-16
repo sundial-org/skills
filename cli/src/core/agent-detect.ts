@@ -3,8 +3,8 @@ import path from 'path';
 import os from 'os';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { SUPPORTED_AGENTS } from './agents.js';
-import type { DetectedAgent, AgentConfig } from '../types/index.js';
+import { SUPPORTED_AGENTS } from './agents';
+import type { DetectedAgent, AgentConfig } from '../types/index';
 
 const execAsync = promisify(exec);
 

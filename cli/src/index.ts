@@ -2,21 +2,25 @@
 
 import { Command } from 'commander';
 import chalk from 'chalk';
-import { SUPPORTED_AGENTS } from './core/agents.js';
-import { addCommand } from './commands/add.js';
-import { removeCommand } from './commands/remove.js';
-import { listCommand } from './commands/list.js';
-import { showCommand } from './commands/show.js';
-import { configCommand } from './commands/config.js';
-import { suggestCommand, getValidCommands } from './utils/fuzzy-match.js';
-import type { CommandFlags } from './types/index.js';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+const { version } = require('../package.json');
+import { SUPPORTED_AGENTS } from './core/agents';
+import { addCommand } from './commands/add';
+import { removeCommand } from './commands/remove';
+import { listCommand } from './commands/list';
+import { showCommand } from './commands/show';
+import { configCommand } from './commands/config';
+import { suggestCommand, getValidCommands } from './utils/fuzzy-match';
+import type { CommandFlags } from './types/index';
 
 const program = new Command();
 
 program
   .name('sun')
   .description('Sundial CLI - Manage skills for your AI agents')
-  .version('0.1.0');
+  .version(version);
 
 // Add command
 const add = program

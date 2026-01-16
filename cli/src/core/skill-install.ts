@@ -3,11 +3,11 @@ import path from 'path';
 import os from 'os';
 import { execFileSync } from 'child_process';
 import AdmZip from 'adm-zip';
-import { getAgentByFlag } from './agents.js';
-import { resolveSkillSource } from './skill-source.js';
-import { findSkillDirectories, readSkillMetadata } from './skill-info.js';
-import type { AgentType, SkillSource } from '../types/index.js';
-import { trackDownload } from '../lib/supabase.js';
+import { getAgentByFlag } from './agents';
+import { resolveSkillSource } from './skill-source';
+import { findSkillDirectories, readSkillMetadata } from './skill-info';
+import type { AgentType, SkillSource } from '../types/index';
+import { trackDownload } from '../lib/supabase';
 import { getShortcutZipUrl } from '../utils/registry.js';
 
 /**

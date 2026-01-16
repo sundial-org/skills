@@ -1,11 +1,11 @@
 import chalk from 'chalk';
 import ora from 'ora';
-import { getAgentByFlag, SUPPORTED_AGENTS } from '../core/agents.js';
-import { isFirstRun, getDefaultAgents, setDefaultAgents } from '../core/config-manager.js';
-import { detectLocalAgents } from '../core/agent-detect.js';
-import { installSkill } from '../core/skill-install.js';
-import { promptAgentSelection } from '../utils/prompts.js';
-import type { AgentType, CommandFlags } from '../types/index.js';
+import { getAgentByFlag, SUPPORTED_AGENTS } from '../core/agents';
+import { isFirstRun, getDefaultAgents, setDefaultAgents } from '../core/config-manager';
+import { detectLocalAgents } from '../core/agent-detect';
+import { installSkill } from '../core/skill-install';
+import { promptAgentSelection } from '../utils/prompts';
+import type { AgentType, CommandFlags } from '../types/index';
 
 /**
  * Determine which agents to install to and whether to install globally.
@@ -81,11 +81,6 @@ export interface AddResult {
  * Add skill(s) to agent configuration(s).
  */
 export async function addCommand(skills: string[], flags: CommandFlags): Promise<void> {
-  if (skills.length === 0) {
-    console.error(chalk.red('Error: No skills specified. Usage: sun add <skill> [skill2] ...'));
-    process.exit(1);
-  }
-
   // Resolve target agents
   const { agents, isGlobal } = await resolveTargetAgents(flags);
 

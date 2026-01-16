@@ -1,10 +1,10 @@
 import chalk from 'chalk';
 import path from 'path';
-import { findSkillInstallations, readSkillMetadata } from '../core/skill-info.js';
-import { getAgentByFlag } from '../core/agents.js';
-import { detectAllAgents, detectLocalAgents } from '../core/agent-detect.js';
-import { getDefaultAgents } from '../core/config-manager.js';
-import { showAllAgentFolders, showAllAgentSkillsFolders, showAllSkillFolders } from './show-dev.js';
+import { findSkillInstallations, readSkillMetadata } from '../core/skill-info';
+import { getAgentByFlag } from '../core/agents';
+import { detectAllAgents, detectLocalAgents } from '../core/agent-detect';
+import { getDefaultAgents } from '../core/config-manager';
+import { showAllAgentFolders, showAllAgentSkillsFolders, showAllSkillFolders } from './show-dev';
 import fs from 'fs-extra';
 
 /**

@@ -1,7 +1,7 @@
 {
-  "name": "@sundial-ai/cli",
-  "version": "0.1.1",
-  "description": "Customize your agent's skills",
+  "name": "sundial-for-agents",
+  "version": "0.0.1",
+  "description": "A CLI to extend your agent's skills",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -11,7 +11,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsup src/index.ts --format esm --dts --clean",
     "dev": "tsx src/index.ts",
     "test": "./test/run-all.sh"
   },
@@ -27,7 +27,6 @@
   "license": "MIT",
   "dependencies": {
     "@inquirer/prompts": "^8.2.0",
-    "@sundial-ai/cli": "^0.0.1",
     "adm-zip": "^0.5.16",
     "chalk": "^5.3.0",
     "commander": "^12.1.0",
@@ -42,6 +41,7 @@
     "@types/fs-extra": "^11.0.4",
     "@types/inquirer": "^9.0.9",
     "@types/node": "^22.10.2",
+    "tsup": "^8.5.1",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }

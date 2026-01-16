@@ -1,6 +1,6 @@
 import chalk from 'chalk';
-import { SUPPORTED_AGENTS, getSupportedAgentsMessage } from '../core/agents.js';
-import { listSkillsForAgent } from '../core/skill-info.js';
+import { SUPPORTED_AGENTS, getSupportedAgentsMessage } from '../core/agents';
+import { listSkillsForAgent } from '../core/skill-info';
 
 interface AgentSkills {
   agentName: string;

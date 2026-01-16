@@ -1,10 +1,10 @@
 import chalk from 'chalk';
 import ora from 'ora';
-import { getAgentByFlag, SUPPORTED_AGENTS } from '../core/agents.js';
-import { getDefaultAgents } from '../core/config-manager.js';
-import { detectLocalAgents } from '../core/agent-detect.js';
-import { removeSkill } from '../core/skill-install.js';
-import type { AgentType, CommandFlags } from '../types/index.js';
+import { getAgentByFlag, SUPPORTED_AGENTS } from '../core/agents';
+import { getDefaultAgents } from '../core/config-manager';
+import { detectLocalAgents } from '../core/agent-detect';
+import { removeSkill } from '../core/skill-install';
+import type { AgentType, CommandFlags } from '../types/index';
 
 /**
  * Determine which agents to remove from and whether to target global installs.
@@ -75,11 +75,6 @@ export interface RemoveResult {
  * Remove skill(s) from agent configuration(s).
  */
 export async function removeCommand(skills: string[], flags: CommandFlags): Promise<void> {
-  if (skills.length === 0) {
-    console.error(chalk.red('Error: No skills specified. Usage: sun remove <skill> [skill2] ...'));
-    process.exit(1);
-  }
-
   // Resolve target agents
   let agents: AgentType[];
   let isGlobal: boolean;
@@ -151,4 +146,5 @@ export async function removeCommand(skills: string[], flags: CommandFlags): Prom
       console.log(chalk.yellow(`${totalFailed} skill(s) not found or failed`));
     }
   }
+
 }

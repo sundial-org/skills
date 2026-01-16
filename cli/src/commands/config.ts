@@ -1,7 +1,7 @@
 import chalk from 'chalk';
-import { getSupportedAgentsMessage, SUPPORTED_AGENTS } from '../core/agents.js';
-import { loadConfig, setDefaultAgents, getConfigPath } from '../core/config-manager.js';
-import { promptAgentSelection } from '../utils/prompts.js';
+import { getSupportedAgentsMessage, SUPPORTED_AGENTS } from '../core/agents';
+import { loadConfig, setDefaultAgents, getConfigPath } from '../core/config-manager';
+import { promptAgentSelection } from '../utils/prompts';
 
 /**
  * Re-open agent selection dialog and update config.

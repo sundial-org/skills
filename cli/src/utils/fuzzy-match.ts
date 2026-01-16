@@ -1,6 +1,5 @@
 import fuzzysort from 'fuzzysort';
-
-const VALID_COMMANDS = ['add', 'remove', 'list', 'show', 'config'];
+import { COMMANDS } from '../constants';
 
 export interface FuzzyMatch {
   command: string;
@@ -12,8 +11,7 @@ export interface FuzzyMatch {
  * fuzzysort scores: 0 = perfect match, negative = worse match
  */
 export function findClosestCommand(input: string): FuzzyMatch | null {
-  const results = fuzzysort.go(input, VALID_COMMANDS, {
-    // Allow any match (we'll filter by score later)
+  const results = fuzzysort.go(input, COMMANDS as unknown as string[], {
     threshold: -Infinity
   });
 
@@ -35,8 +33,6 @@ export function findClosestCommand(input: string): FuzzyMatch | null {
 export function suggestCommand(input: string): string | null {
   const match = findClosestCommand(input);
 
-  // Only suggest if score is reasonable (0=perfect, -100 is still decent for typos)
-  // Examples: "ad" -> "add" (good), "addd" -> "add" (good), "xyz" -> null (no suggestion)
   if (match && match.score > -100) {
     return match.command;
   }
@@ -44,5 +40,5 @@ export function suggestCommand(input: string): string | null {
 }
 
 export function getValidCommands(): string[] {
-  return [...VALID_COMMANDS];
+  return [...COMMANDS];
 }

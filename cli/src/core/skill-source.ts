@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import path from 'path';
-import { isShortcut, getShortcutUrl } from '../utils/registry.js';
-import type { SkillSource } from '../types/index.js';
+import { isShortcut, getShortcutUrl } from '../utils/registry';
+import type { SkillSource } from '../types/index';
 
 /**
  * Check if input looks like a GitHub URL or reference.

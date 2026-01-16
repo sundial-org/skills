@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import { getAgentByFlag } from './agents.js';
 import { resolveSkillSource } from './skill-source.js';
 import { findSkillDirectories, readSkillMetadata } from './skill-info.js';
@@ -88,7 +88,7 @@ export async function installFromGithub(
     // Download using degit
     await fs.ensureDir(tempDir);
     try {
-      execSync(`npx degit ${source.location} "${tempDir}"`, {
+      execFileSync('npx', ['degit', source.location, tempDir], {
         stdio: 'pipe'
       });
     } catch (error) {

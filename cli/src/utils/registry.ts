@@ -1,5 +1,7 @@
 import { fetchSkills, type Skill } from '../lib/supabase.js';
 
+const STORAGE_URL = 'https://vfbndmrgggrhnlrileqv.supabase.co/storage/v1/object/public/skill-zips';
+
 // Cache for skill lookups during a session
 let skillsCache: Skill[] | null = null;
 
@@ -21,6 +23,11 @@ export async function isShortcut(skill: string): Promise<boolean> {
 
 export async function getShortcutUrl(skill: string): Promise<string | undefined> {
   return (await getSkillByName(skill))?.degit_path;
+}
+
+export async function getShortcutZipUrl(skill: string): Promise<string | undefined> {
+  const zipPath = (await getSkillByName(skill))?.zip_path;
+  return zipPath ? `${STORAGE_URL}/${zipPath}` : undefined;
 }
 
 export async function listShortcuts(): Promise<string[]> {

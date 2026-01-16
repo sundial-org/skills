@@ -14,7 +14,7 @@ import { getShortcutZipUrl } from '../utils/registry.js';
  * Get the destination path for installing a skill.
  * Skill name comes from SKILL.md frontmatter.
  */
-function getSkillDestination(skillName: string, agentFlag: AgentType, isGlobal: boolean): string {
+export function getSkillInstallPath(skillName: string, agentFlag: AgentType, isGlobal: boolean): string {
   const agent = getAgentByFlag(agentFlag);
   if (!agent) {
     throw new Error(`Unknown agent: ${agentFlag}`);
@@ -40,7 +40,7 @@ async function installSkillDirectory(
     throw new Error(`Invalid skill at "${skillDir}": SKILL.md must have name and description in frontmatter`);
   }
 
-  const dest = getSkillDestination(metadata.name, agentFlag, isGlobal);
+  const dest = getSkillInstallPath(metadata.name, agentFlag, isGlobal);
 
   // Ensure parent directory exists
   await fs.ensureDir(path.dirname(dest));
@@ -215,7 +215,7 @@ export async function removeSkill(
   agentFlag: AgentType,
   isGlobal: boolean
 ): Promise<boolean> {
-  const dest = getSkillDestination(skillName, agentFlag, isGlobal);
+  const dest = getSkillInstallPath(skillName, agentFlag, isGlobal);
 
   if (await fs.pathExists(dest)) {
     await fs.remove(dest);

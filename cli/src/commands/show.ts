@@ -5,6 +5,7 @@ import { getAgentByFlag } from '../core/agents';
 import { detectAllAgents, detectLocalAgents } from '../core/agent-detect';
 import { getDefaultAgents } from '../core/config-manager';
 import { showAllAgentFolders, showAllAgentSkillsFolders, showAllSkillFolders } from './show-dev';
+import { formatDirectoryTree, indentLines } from '../utils/tree';
 import fs from 'fs-extra';
 
 /**
@@ -168,6 +169,9 @@ export async function showCommand(skillName?: string): Promise<void> {
       }
 
       console.log(`  Content hash: ${hash}`);
+      const tree = await formatDirectoryTree(firstInst.path);
+      console.log('  Tree:');
+      console.log(indentLines(tree, '    '));
       console.log();
 
       versionNum++;
@@ -196,8 +200,14 @@ export async function showCommand(skillName?: string): Promise<void> {
     console.log('Installed in:');
     for (const inst of installations) {
       const agent = getAgentByFlag(inst.agent)!;
+      const base = inst.isGlobal ? `~/${agent.folderName}/` : `${agent.folderName}/`;
       const location = inst.isGlobal ? '(global)' : '(local)';
-      console.log(`  - ${agent.folderName}/ ${chalk.gray(location)}`);
+      console.log(`  - ${base}skills/${skillName} ${chalk.gray(location)}`);
     }
+
+    const tree = await formatDirectoryTree(firstInst.path);
+    console.log();
+    console.log('Skill folder:');
+    console.log(indentLines(tree, '  '));
   }
 }

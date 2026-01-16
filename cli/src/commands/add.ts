@@ -3,8 +3,9 @@ import ora from 'ora';
 import { getAgentByFlag, SUPPORTED_AGENTS } from '../core/agents';
 import { isFirstRun, getDefaultAgents, setDefaultAgents } from '../core/config-manager';
 import { detectLocalAgents } from '../core/agent-detect';
-import { installSkill } from '../core/skill-install';
+import { getSkillInstallPath, installSkill } from '../core/skill-install';
 import { promptAgentSelection } from '../utils/prompts';
+import { formatDirectoryTree, indentLines } from '../utils/tree';
 import type { AgentType, CommandFlags } from '../types/index';
 
 /**
@@ -126,6 +127,20 @@ export async function addCommand(skills: string[], flags: CommandFlags): Promise
 
     if (!isGlobal) {
       console.log(chalk.gray('(use --global to install globally)'));
+    }
+
+    const primaryAgent = agents[0];
+    if (primaryAgent) {
+      for (const result of successful) {
+        const skillNames = [...new Set(result.installedNames)];
+        for (const skillName of skillNames) {
+          const treePath = getSkillInstallPath(skillName, primaryAgent, result.isGlobal);
+          const tree = await formatDirectoryTree(treePath);
+          console.log();
+          console.log(chalk.cyan(`Skill folder added for ${skillName}:`));
+          console.log(indentLines(tree, '  '));
+        }
+      }
     }
   }
 }

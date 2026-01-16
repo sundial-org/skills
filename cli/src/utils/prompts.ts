@@ -1,6 +1,6 @@
-import { checkbox } from '@inquirer/prompts';
 import chalk from 'chalk';
 import { SUPPORTED_AGENTS } from '../core/agents';
+import { checkboxExtended } from './checkbox-extended';
 import type { AgentType } from '../types/index';
 
 /**
@@ -20,8 +20,6 @@ export async function promptAgentSelection(
 ): Promise<AgentType[]> {
   const isFirstRun = currentDefaults.length === 0;
 
-  console.log(chalk.gray('Use space to toggle, enter to confirm:\n'));
-
   // Build choices from SUPPORTED_AGENTS constants
   // Show paths so users understand what each agent refers to
   const choices = SUPPORTED_AGENTS.map(agent => ({
@@ -32,13 +30,20 @@ export async function promptAgentSelection(
     checked: isFirstRun ? true : currentDefaults.includes(agent.flag as AgentType)
   }));
 
-  const selectedAgents = await checkbox({
+  const selectedAgents = await checkboxExtended({
     message: 'Select default agents:',
     choices,
     required: true,
     theme: {
+      icon: {
+        // Make the selection marker stand out a bit more.
+        checked: chalk.green('◉'),
+        unchecked: chalk.white('◎'),
+        cursor: chalk.white('❯')
+      },
       style: {
-        keysHelpTip: () => undefined
+        // Keep active line readable (esp. on dark terminals) and avoid “cyan highlight”.
+        highlight: (text: string) => chalk.bold.white(text)
       }
     }
   });

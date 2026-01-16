@@ -25,9 +25,6 @@ export async function configCommand(): Promise<void> {
     console.log();
   }
 
-  console.log(chalk.gray(getSupportedAgentsMessage()));
-  console.log();
-
   // Show agent type selection dialog
   const selectedAgents = await promptAgentSelection(config.defaultAgents);
 

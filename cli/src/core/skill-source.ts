@@ -62,13 +62,16 @@ export function isLocalPath(input: string): boolean {
  * 3. Check if it's a valid local path
  * 4. Otherwise, throw error
  */
-export function resolveSkillSource(input: string): SkillSource {
+export async function resolveSkillSource(input: string): Promise<SkillSource> {
   // 1. Check shortcuts first
-  if (isShortcut(input)) {
-    const url = getShortcutUrl(input)!;
+  if (await isShortcut(input)) {
+    const degitPath = await getShortcutUrl(input);
+    if (!degitPath) {
+      throw new Error(`Skill "${input}" found in registry but has no degit_path`);
+    }
     return {
       type: 'shortcut',
-      location: normalizeGithubUrl(url),
+      location: degitPath,
       originalInput: input
     };
   }

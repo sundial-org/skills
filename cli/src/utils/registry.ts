@@ -1,16 +1,29 @@
-/** Skill shortcuts registry - maps short names to GitHub URLs */
-export const SKILL_SHORTCUTS: Record<string, string> = {
-  tinker: 'https://github.com/sundial-org/skills/tree/main/skills/tinker'
-};
+import { fetchSkills, type Skill } from '../lib/supabase.js';
 
-export function isShortcut(skill: string): boolean {
-  return skill in SKILL_SHORTCUTS;
+// Cache for skill lookups during a session
+let skillsCache: Skill[] | null = null;
+
+export async function getSkillsFromRegistry(): Promise<Skill[]> {
+  if (!skillsCache) {
+    skillsCache = await fetchSkills();
+  }
+  return skillsCache;
 }
 
-export function getShortcutUrl(skill: string): string | undefined {
-  return SKILL_SHORTCUTS[skill];
+async function getSkillByName(name: string): Promise<Skill | undefined> {
+  const skills = await getSkillsFromRegistry();
+  return skills.find(skill => skill.name === name);
 }
 
-export function listShortcuts(): string[] {
-  return Object.keys(SKILL_SHORTCUTS);
+export async function isShortcut(skill: string): Promise<boolean> {
+  return (await getSkillByName(skill)) !== undefined;
+}
+
+export async function getShortcutUrl(skill: string): Promise<string | undefined> {
+  return (await getSkillByName(skill))?.degit_path;
+}
+
+export async function listShortcuts(): Promise<string[]> {
+  const skills = await getSkillsFromRegistry();
+  return skills.map(s => s.name);
 }

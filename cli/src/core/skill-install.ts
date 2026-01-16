@@ -1,11 +1,12 @@
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import { getAgentByFlag } from './agents.js';
 import { resolveSkillSource } from './skill-source.js';
 import { findSkillDirectories, readSkillMetadata } from './skill-info.js';
 import type { AgentType, SkillSource } from '../types/index.js';
+import { trackDownload } from '../lib/supabase.js';
 
 /**
  * Get the destination path for installing a skill.
@@ -88,7 +89,7 @@ export async function installFromGithub(
     // Download using degit
     await fs.ensureDir(tempDir);
     try {
-      execSync(`npx degit ${source.location} "${tempDir}"`, {
+      execFileSync('npx', ['degit', source.location, tempDir], {
         stdio: 'pipe'
       });
     } catch (error) {
@@ -127,7 +128,7 @@ export async function installSkill(
   agentFlag: AgentType,
   isGlobal: boolean
 ): Promise<{ skillNames: string[]; source: SkillSource }> {
-  const source = resolveSkillSource(skillInput);
+  const source = await resolveSkillSource(skillInput);
 
   let skillNames: string[];
 
@@ -141,6 +142,10 @@ export async function installSkill(
       break;
     default:
       throw new Error(`Unknown source type: ${(source as SkillSource).type}`);
+  }
+
+  if (source.type === 'shortcut') {
+    await trackDownload(source.originalInput);
   }
 
   return { skillNames, source };

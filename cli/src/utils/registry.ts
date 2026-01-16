@@ -1,4 +1,4 @@
-import { fetchSkillByName, fetchSkills, type Skill } from '../lib/supabase.js';
+import { fetchSkills, type Skill } from '../lib/supabase.js';
 
 // Cache for skill lookups during a session
 let skillsCache: Skill[] | null = null;
@@ -10,14 +10,17 @@ export async function getSkillsFromRegistry(): Promise<Skill[]> {
   return skillsCache;
 }
 
-export async function isShortcut(skill: string): Promise<boolean> {
+async function getSkillByName(name: string): Promise<Skill | undefined> {
   const skills = await getSkillsFromRegistry();
-  return skills.some(s => s.name === skill);
+  return skills.find(skill => skill.name === name);
+}
+
+export async function isShortcut(skill: string): Promise<boolean> {
+  return (await getSkillByName(skill)) !== undefined;
 }
 
 export async function getShortcutUrl(skill: string): Promise<string | undefined> {
-  const skillData = await fetchSkillByName(skill);
-  return skillData?.degit_path;
+  return (await getSkillByName(skill))?.degit_path;
 }
 
 export async function listShortcuts(): Promise<string[]> {

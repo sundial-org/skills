@@ -17,6 +17,20 @@ import type { CommandFlags } from './types/index';
 
 const program = new Command();
 
+function isPromptExit(error: unknown): boolean {
+  return error instanceof Error && error.name === 'ExitPromptError';
+}
+
+function handleCommandError(error: unknown): never {
+  // Quietly exit when user cancels an interactive prompt (Ctrl+C / SIGINT).
+  if (isPromptExit(error)) {
+    process.exit(130);
+  }
+
+  console.error(chalk.red(error instanceof Error ? error.message : String(error)));
+  process.exit(1);
+}
+
 program
   .name('sun')
   .description('Sundial CLI - Manage skills for your AI agents')
@@ -37,8 +51,7 @@ add.action(async (skills: string[], options: CommandFlags) => {
   try {
     await addCommand(skills, options);
   } catch (error) {
-    console.error(chalk.red(error instanceof Error ? error.message : String(error)));
-    process.exit(1);
+    handleCommandError(error);
   }
 });
 
@@ -56,8 +69,7 @@ remove.action(async (skills: string[], options: CommandFlags) => {
   try {
     await removeCommand(skills, options);
   } catch (error) {
-    console.error(chalk.red(error instanceof Error ? error.message : String(error)));
-    process.exit(1);
+    handleCommandError(error);
   }
 });
 
@@ -69,8 +81,7 @@ program
     try {
       await listCommand();
     } catch (error) {
-      console.error(chalk.red(error instanceof Error ? error.message : String(error)));
-      process.exit(1);
+      handleCommandError(error);
     }
   });
 
@@ -82,8 +93,7 @@ program
     try {
       await showCommand(skill);
     } catch (error) {
-      console.error(chalk.red(error instanceof Error ? error.message : String(error)));
-      process.exit(1);
+      handleCommandError(error);
     }
   });
 
@@ -95,8 +105,7 @@ program
     try {
       await configCommand();
     } catch (error) {
-      console.error(chalk.red(error instanceof Error ? error.message : String(error)));
-      process.exit(1);
+      handleCommandError(error);
     }
   });
 

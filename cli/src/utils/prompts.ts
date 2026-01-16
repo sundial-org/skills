@@ -1,5 +1,6 @@
 import chalk from 'chalk';
-import { SUPPORTED_AGENTS } from '../core/agents';
+import { confirm } from '@inquirer/prompts';
+import { SUPPORTED_AGENTS, getAgentByFlag } from '../core/agents';
 import { checkboxExtended } from './checkbox-extended';
 import type { AgentType } from '../types/index';
 
@@ -49,4 +50,20 @@ export async function promptAgentSelection(
   });
 
   return selectedAgents;
+}
+
+export async function promptSkillOverride(params: {
+  skillName: string;
+  agentFlag: AgentType;
+  isGlobal: boolean;
+  destPath: string;
+}): Promise<boolean> {
+  const agent = getAgentByFlag(params.agentFlag);
+  const agentLabel = agent ? agent.name : params.agentFlag;
+  const locationLabel = params.isGlobal ? 'global' : 'local';
+
+  return confirm({
+    message: `Skill "${params.skillName}" already exists in ${agentLabel} (${locationLabel}) at ${params.destPath}. Override?`,
+    default: false
+  });
 }

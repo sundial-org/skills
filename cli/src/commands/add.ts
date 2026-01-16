@@ -3,8 +3,8 @@ import ora from 'ora';
 import { getAgentByFlag, SUPPORTED_AGENTS } from '../core/agents';
 import { isFirstRun, getDefaultAgents, setDefaultAgents } from '../core/config-manager';
 import { detectLocalAgents } from '../core/agent-detect';
-import { getSkillInstallPath, installSkill } from '../core/skill-install';
-import { promptAgentSelection } from '../utils/prompts';
+import { getSkillInstallPath, installSkill, type ConfirmSkillOverride } from '../core/skill-install';
+import { promptAgentSelection, promptSkillOverride } from '../utils/prompts';
 import { formatDirectoryTree, indentLines } from '../utils/tree';
 import type { AgentType, CommandFlags } from '../types/index';
 
@@ -70,6 +70,29 @@ async function resolveTargetAgents(flags: CommandFlags): Promise<{ agents: Agent
   return { agents: targetAgents, isGlobal };
 }
 
+function formatList(items: string[]): string {
+  if (items.length === 0) {
+    return '';
+  }
+  if (items.length === 1) {
+    return items[0];
+  }
+  if (items.length === 2) {
+    return `${items[0]} and ${items[1]}`;
+  }
+  return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`;
+}
+
+function getAgentCommandHints(agentFlags: AgentType[]): string[] {
+  const commandHints: Record<AgentType, string> = {
+    claude: 'claude',
+    codex: 'codex',
+    gemini: 'gemini'
+  };
+
+  return agentFlags.map(flag => commandHints[flag] ?? flag);
+}
+
 export interface AddResult {
   skill: string;
   installedNames: string[];
@@ -84,11 +107,18 @@ export interface AddResult {
 export async function addCommand(skills: string[], flags: CommandFlags): Promise<void> {
   // Resolve target agents
   const { agents, isGlobal } = await resolveTargetAgents(flags);
+  const hasExplicitAgentFlags = SUPPORTED_AGENTS.some(agent => flags[agent.flag as keyof CommandFlags]);
 
   const results: AddResult[] = [];
 
   for (const skill of skills) {
     const spinner = ora(`Adding ${skill}...`).start();
+    const confirmOverride: ConfirmSkillOverride = async params => {
+      if (spinner.isSpinning) {
+        spinner.stop();
+      }
+      return promptSkillOverride(params);
+    };
 
     const result: AddResult = {
       skill,
@@ -100,12 +130,18 @@ export async function addCommand(skills: string[], flags: CommandFlags): Promise
     try {
       // Install to each target agent
       for (const agentFlag of agents) {
-        const { skillNames } = await installSkill(skill, agentFlag, isGlobal);
-        result.installedNames = skillNames;
-        result.agents.push(getAgentByFlag(agentFlag)!.name);
+        const { skillNames } = await installSkill(skill, agentFlag, isGlobal, confirmOverride);
+        if (skillNames.length > 0) {
+          result.installedNames = [...new Set([...result.installedNames, ...skillNames])];
+          result.agents.push(getAgentByFlag(agentFlag)!.name);
+        }
       }
 
-      spinner.succeed(`Added ${result.installedNames.join(', ')}`);
+      if (result.installedNames.length === 0) {
+        spinner.info(`Skipped ${skill}`);
+      } else {
+        spinner.succeed(`Added ${result.installedNames.join(', ')}`);
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       result.error = message;
@@ -116,18 +152,10 @@ export async function addCommand(skills: string[], flags: CommandFlags): Promise
   }
 
   // Print summary
-  const successful = results.filter(r => !r.error);
+  const successful = results.filter(r => !r.error && r.installedNames.length > 0);
   if (successful.length > 0) {
     const allSkills = [...new Set(successful.flatMap(r => r.installedNames))];
     const agentFolders = [...new Set(successful.flatMap(r => r.agents))];
-
-    console.log();
-    const location = isGlobal ? '(global)' : '(local)';
-    console.log(chalk.green(`Added ${allSkills.join(', ')} to ${agentFolders.join(' and ')} ${chalk.gray(location)}`));
-
-    if (!isGlobal) {
-      console.log(chalk.gray('(use --global to install globally)'));
-    }
 
     const primaryAgent = agents[0];
     if (primaryAgent) {
@@ -137,10 +165,20 @@ export async function addCommand(skills: string[], flags: CommandFlags): Promise
           const treePath = getSkillInstallPath(skillName, primaryAgent, result.isGlobal);
           const tree = await formatDirectoryTree(treePath);
           console.log();
-          console.log(chalk.cyan(`Skill folder added for ${skillName}:`));
+          console.log(chalk.cyan(`Skill folder for ${skillName}:`));
           console.log(indentLines(tree, '  '));
         }
       }
     }
+
+    console.log();
+    const location = isGlobal ? '(global)' : '(local)';
+    console.log(chalk.green(`Added ${allSkills.join(', ')} to ${agentFolders.join(' and ')} ${chalk.gray(location)}`));
+
+    const promptAgents = hasExplicitAgentFlags ? agents : await getDefaultAgents();
+    const commandHints = getAgentCommandHints(promptAgents).map(command => `\`${command}\``);
+    const skillLabel = allSkills.length === 1 ? 'skill' : 'skills';
+    const plural = allSkills.length > 1 ? 'skills' : 'skill';
+    console.log(chalk.cyan(`Next: run ${formatList(commandHints)} and ask it to use the downloaded ${plural}`));
   }
 }

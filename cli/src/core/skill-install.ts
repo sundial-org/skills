@@ -29,11 +29,19 @@ export function getSkillInstallPath(skillName: string, agentFlag: AgentType, isG
  * The skill name is taken from SKILL.md frontmatter (not the folder name).
  * The destination folder will be named after the frontmatter name.
  */
+export type ConfirmSkillOverride = (params: {
+  skillName: string;
+  agentFlag: AgentType;
+  isGlobal: boolean;
+  destPath: string;
+}) => Promise<boolean>;
+
 async function installSkillDirectory(
   skillDir: string,
   agentFlag: AgentType,
-  isGlobal: boolean
-): Promise<string> {
+  isGlobal: boolean,
+  confirmOverride?: ConfirmSkillOverride
+): Promise<string | null> {
   // Get metadata from SKILL.md frontmatter (name and description are required)
   const metadata = await readSkillMetadata(skillDir);
   if (!metadata) {
@@ -41,6 +49,20 @@ async function installSkillDirectory(
   }
 
   const dest = getSkillInstallPath(metadata.name, agentFlag, isGlobal);
+
+  if (await fs.pathExists(dest)) {
+    if (confirmOverride) {
+      const shouldOverwrite = await confirmOverride({
+        skillName: metadata.name,
+        agentFlag,
+        isGlobal,
+        destPath: dest
+      });
+      if (!shouldOverwrite) {
+        return null;
+      }
+    }
+  }
 
   // Ensure parent directory exists
   await fs.ensureDir(path.dirname(dest));
@@ -58,7 +80,8 @@ async function installSkillDirectory(
 export async function installFromLocal(
   source: SkillSource,
   agentFlag: AgentType,
-  isGlobal: boolean
+  isGlobal: boolean,
+  confirmOverride?: ConfirmSkillOverride
 ): Promise<string[]> {
   const skillDirs = await findSkillDirectories(source.location);
 
@@ -68,8 +91,10 @@ export async function installFromLocal(
 
   const installedSkills: string[] = [];
   for (const skillDir of skillDirs) {
-    const skillName = await installSkillDirectory(skillDir, agentFlag, isGlobal);
-    installedSkills.push(skillName);
+    const skillName = await installSkillDirectory(skillDir, agentFlag, isGlobal, confirmOverride);
+    if (skillName) {
+      installedSkills.push(skillName);
+    }
   }
 
   return installedSkills;
@@ -83,7 +108,8 @@ async function installFromZip(
   zipUrl: string,
   source: SkillSource,
   agentFlag: AgentType,
-  isGlobal: boolean
+  isGlobal: boolean,
+  confirmOverride?: ConfirmSkillOverride
 ): Promise<string[]> {
   const tempDir = path.join(os.tmpdir(), `sun-install-${Date.now()}`);
 
@@ -111,8 +137,10 @@ async function installFromZip(
 
     const installedSkills: string[] = [];
     for (const skillDir of skillDirs) {
-      const skillName = await installSkillDirectory(skillDir, agentFlag, isGlobal);
-      installedSkills.push(skillName);
+      const skillName = await installSkillDirectory(skillDir, agentFlag, isGlobal, confirmOverride);
+      if (skillName) {
+        installedSkills.push(skillName);
+      }
     }
 
     return installedSkills;
@@ -128,7 +156,8 @@ async function installFromZip(
 export async function installFromGithub(
   source: SkillSource,
   agentFlag: AgentType,
-  isGlobal: boolean
+  isGlobal: boolean,
+  confirmOverride?: ConfirmSkillOverride
 ): Promise<string[]> {
   // Create a temp directory to download to
   const tempDir = path.join(os.tmpdir(), `sun-install-${Date.now()}`);
@@ -156,8 +185,10 @@ export async function installFromGithub(
     // Install each skill found (name comes from SKILL.md frontmatter)
     const installedSkills: string[] = [];
     for (const skillDir of skillDirs) {
-      const skillName = await installSkillDirectory(skillDir, agentFlag, isGlobal);
-      installedSkills.push(skillName);
+      const skillName = await installSkillDirectory(skillDir, agentFlag, isGlobal, confirmOverride);
+      if (skillName) {
+        installedSkills.push(skillName);
+      }
     }
 
     return installedSkills;
@@ -174,7 +205,8 @@ export async function installFromGithub(
 export async function installSkill(
   skillInput: string,
   agentFlag: AgentType,
-  isGlobal: boolean
+  isGlobal: boolean,
+  confirmOverride?: ConfirmSkillOverride
 ): Promise<{ skillNames: string[]; source: SkillSource }> {
   const source = await resolveSkillSource(skillInput);
 
@@ -182,19 +214,19 @@ export async function installSkill(
 
   switch (source.type) {
     case 'local':
-      skillNames = await installFromLocal(source, agentFlag, isGlobal);
+      skillNames = await installFromLocal(source, agentFlag, isGlobal, confirmOverride);
       break;
     case 'shortcut': {
       const zipUrl = await getShortcutZipUrl(source.originalInput);
       if (zipUrl) {
-        skillNames = await installFromZip(zipUrl, source, agentFlag, isGlobal);
+        skillNames = await installFromZip(zipUrl, source, agentFlag, isGlobal, confirmOverride);
       } else {
-        skillNames = await installFromGithub(source, agentFlag, isGlobal);
+        skillNames = await installFromGithub(source, agentFlag, isGlobal, confirmOverride);
       }
       break;
     }
     case 'github':
-      skillNames = await installFromGithub(source, agentFlag, isGlobal);
+      skillNames = await installFromGithub(source, agentFlag, isGlobal, confirmOverride);
       break;
     default:
       throw new Error(`Unknown source type: ${(source as SkillSource).type}`);

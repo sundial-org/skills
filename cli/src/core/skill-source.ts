@@ -16,23 +16,55 @@ export function isGithubUrl(input: string): boolean {
  * Converts: https://github.com/user/repo/tree/branch/path -> user/repo/path#branch
  */
 function normalizeGithubUrl(url: string): string {
-  let location = url;
+  let location = url.trim();
 
-  // Remove https:// or http:// prefix if present
-  location = location.replace(/^https?:\/\//, '');
+  // Remove git+ prefix (e.g. git+https://...)
+  location = location.replace(/^git\+/, '');
 
-  // Handle github.com/user/repo/tree/branch/path format
-  // Convert to degit format: user/repo/path#branch
-  const treeMatch = location.match(/^github\.com\/([^/]+)\/([^/]+)\/tree\/([^/]+)\/(.+)$/);
-  if (treeMatch) {
-    const [, user, repo, branch, subpath] = treeMatch;
-    location = `${user}/${repo}/${subpath}#${branch}`;
-  } else {
-    // Simple format: github.com/user/repo -> user/repo
-    location = location.replace(/^github\.com\//, '');
+  // Ensure URL parsing works even if scheme is missing
+  const urlString = /^[a-z]+:\/\//i.test(location) ? location : `https://${location}`;
+
+  let pathname = '';
+  try {
+    const parsed = new URL(urlString);
+    pathname = parsed.pathname;
+  } catch {
+    pathname = urlString.replace(/^https?:\/\//, '');
   }
 
-  return location;
+  // Normalize path segments and strip github.com if present
+  pathname = pathname.replace(/^\/+/, '');
+  const parts = pathname.split('/').filter(Boolean);
+  if (parts[0] === 'github.com') {
+    parts.shift();
+  }
+
+  if (parts.length < 2) {
+    return pathname;
+  }
+
+  const user = parts[0];
+  const repo = parts[1].replace(/\.git$/, '');
+
+  const kind = parts[2];
+  if (kind === 'tree' || kind === 'blob' || kind === 'raw') {
+    const branch = parts[3] || '';
+    let subpath = parts.slice(4).join('/');
+
+    // blob/raw URLs point to a file; drop the filename so we pull its directory
+    if (kind !== 'tree' && subpath) {
+      const subparts = subpath.split('/');
+      subparts.pop();
+      subpath = subparts.join('/');
+    }
+
+    if (branch) {
+      return subpath ? `${user}/${repo}/${subpath}#${branch}` : `${user}/${repo}#${branch}`;
+    }
+  }
+
+  const extraPath = parts.slice(2).join('/');
+  return extraPath ? `${user}/${repo}/${extraPath}` : `${user}/${repo}`;
 }
 
 /**

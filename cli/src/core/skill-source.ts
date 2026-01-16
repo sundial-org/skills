@@ -2,6 +2,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import { isShortcut, getShortcutUrl } from '../utils/registry.js';
 import type { SkillSource } from '../types/index.js';
+import { trackDownload } from '../lib/supabase.js';
 
 /**
  * Check if input looks like a GitHub URL or reference.
@@ -62,13 +63,18 @@ export function isLocalPath(input: string): boolean {
  * 3. Check if it's a valid local path
  * 4. Otherwise, throw error
  */
-export function resolveSkillSource(input: string): SkillSource {
+export async function resolveSkillSource(input: string): Promise<SkillSource> {
   // 1. Check shortcuts first
-  if (isShortcut(input)) {
-    const url = getShortcutUrl(input)!;
+  if (await isShortcut(input)) {
+    const degitPath = await getShortcutUrl(input);
+    if (!degitPath) {
+      throw new Error(`Skill "${input}" found in registry but has no degit_path`);
+    }
+    // Track download for registry skills
+    await trackDownload(input);
     return {
       type: 'shortcut',
-      location: normalizeGithubUrl(url),
+      location: degitPath,
       originalInput: input
     };
   }

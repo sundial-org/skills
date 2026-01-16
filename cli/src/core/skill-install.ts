@@ -127,7 +127,7 @@ export async function installSkill(
   agentFlag: AgentType,
   isGlobal: boolean
 ): Promise<{ skillNames: string[]; source: SkillSource }> {
-  const source = resolveSkillSource(skillInput);
+  const source = await resolveSkillSource(skillInput);
 
   let skillNames: string[];
 

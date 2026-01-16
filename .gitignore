@@ -6,3 +6,6 @@ cli/dist
 cli/test/logs/
 ./publish.sh
 **scratch**
+.env
+cli/scripts/
+.DS_Store

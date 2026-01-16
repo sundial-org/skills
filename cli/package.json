@@ -1,5 +1,5 @@
 {
-  "name": "sundial-for-agents",
+  "name": "sundial-hub",
   "version": "0.0.1",
   "description": "A CLI to extend your agent's skills",
   "type": "module",

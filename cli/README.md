@@ -13,8 +13,7 @@ Supported agents:
 - Gemini
 
 ```bash
-npm install -g @sundial-ai/cli
-```
+npm install -g sundial-hub
 
 ```bash
 sun add tinker                    # Add from [registry](https://sundialscientific.com)
@@ -36,5 +35,5 @@ sun add tinker --claude --codex   # Install to specific agents
 
 ## Links
 
-- [Agent Skills Specification](https://agentskills.io/specification)
+- [Agent Skills Specification](https://agentskills.io/specification): Open source standard for agent skills
 - [Issues](https://github.com/sundial-org/skills/issues)

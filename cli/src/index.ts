@@ -10,6 +10,7 @@ import { SUPPORTED_AGENTS } from './core/agents';
 import { addCommand } from './commands/add';
 import { removeCommand } from './commands/remove';
 import { listCommand } from './commands/list';
+import { listRegistryCommand } from './commands/list-registry';
 import { showCommand } from './commands/show';
 import { configCommand } from './commands/config';
 import { suggestCommand, getValidCommands } from './utils/fuzzy-match';
@@ -73,10 +74,23 @@ remove.action(async (skills: string[], options: CommandFlags) => {
   }
 });
 
-// List command
+// List command (registry)
 program
   .command('list')
-  .description('List all installed skills for each agent')
+  .description('List available skills from the registry')
+  .action(async () => {
+    try {
+      await listRegistryCommand();
+    } catch (error) {
+      handleCommandError(error);
+    }
+  });
+
+// Installed command (alias for installed skills)
+program
+  .command('installed')
+  .alias('list-installed')
+  .description('List installed skills for each agent')
   .action(async () => {
     try {
       await listCommand();

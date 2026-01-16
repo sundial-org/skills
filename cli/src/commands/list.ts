@@ -44,7 +44,8 @@ export async function listCommand(): Promise<void> {
     console.log(chalk.yellow('No skills installed.'));
     console.log();
     console.log(chalk.gray(getSupportedAgentsMessage()));
-    console.log(chalk.gray('You can add skills with "sun add <skill>"'));
+    console.log(chalk.gray('Browse curated skills with "sun list"'));
+    console.log(chalk.gray('You can add from the library, GitHub URLs, or local paths with "sun add <skill>"'));
     return;
   }
 
@@ -64,5 +65,7 @@ export async function listCommand(): Promise<void> {
   }
 
   console.log(chalk.gray(getSupportedAgentsMessage()));
-  console.log(chalk.gray('You can add skills with "sun add <skill>" or remove with "sun remove <skill>"'));
+  console.log(chalk.gray('Browse curated skills with "sun list"'));
+  console.log(chalk.gray('Add from the library, GitHub URLs, or local paths with "sun add <skill>"'));
+  console.log(chalk.gray('Remove with "sun remove <skill>"'));
 }

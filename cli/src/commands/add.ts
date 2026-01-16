@@ -78,19 +78,9 @@ function formatList(items: string[]): string {
     return items[0];
   }
   if (items.length === 2) {
-    return `${items[0]} and ${items[1]}`;
+    return `${items[0]} or ${items[1]}`;
   }
-  return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`;
-}
-
-function getAgentCommandHints(agentFlags: AgentType[]): string[] {
-  const commandHints: Record<AgentType, string> = {
-    claude: 'claude',
-    codex: 'codex',
-    gemini: 'gemini'
-  };
-
-  return agentFlags.map(flag => commandHints[flag] ?? flag);
+  return `${items.slice(0, -1).join(', ')}, or ${items[items.length - 1]}`;
 }
 
 export interface AddResult {
@@ -176,8 +166,7 @@ export async function addCommand(skills: string[], flags: CommandFlags): Promise
     console.log(chalk.green(`Added ${allSkills.join(', ')} to ${agentFolders.join(' and ')} ${chalk.gray(location)}`));
 
     const promptAgents = hasExplicitAgentFlags ? agents : await getDefaultAgents();
-    const commandHints = getAgentCommandHints(promptAgents).map(command => `\`${command}\``);
-    const skillLabel = allSkills.length === 1 ? 'skill' : 'skills';
+    const commandHints = promptAgents.map(command => `\`${command}\``);
     const plural = allSkills.length > 1 ? 'skills' : 'skill';
     console.log(chalk.cyan(`Next: run ${formatList(commandHints)} and ask it to use the downloaded ${plural}`));
   }

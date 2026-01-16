@@ -7,11 +7,12 @@ npm install -g @sundial-ai/cli
 ```
 
 ```bash
-sun add tinker                    # Add from registry
+sun add tinker                    # Add from [registry](https://sundialscientific.com)
 sun add github.com/user/skill     # Add from GitHub
 sun add ./my-skill                # Add from local path
 
-sun list                          # See installed skills
+sun list                          # Browse available skills ([registry](https://sundialscientific.com))
+sun installed                     # See installed skills
 sun remove tinker                 # Remove a skill
 ```
 

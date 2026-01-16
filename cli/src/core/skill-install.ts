@@ -2,11 +2,13 @@ import fs from 'fs-extra';
 import path from 'path';
 import os from 'os';
 import { execFileSync } from 'child_process';
+import AdmZip from 'adm-zip';
 import { getAgentByFlag } from './agents.js';
 import { resolveSkillSource } from './skill-source.js';
 import { findSkillDirectories, readSkillMetadata } from './skill-info.js';
 import type { AgentType, SkillSource } from '../types/index.js';
 import { trackDownload } from '../lib/supabase.js';
+import { getShortcutZipUrl } from '../utils/registry.js';
 
 /**
  * Get the destination path for installing a skill.
@@ -74,6 +76,52 @@ export async function installFromLocal(
 }
 
 /**
+ * Install skill(s) from a zip URL.
+ * Downloads zip, extracts, then checks for SKILL.md.
+ */
+async function installFromZip(
+  zipUrl: string,
+  source: SkillSource,
+  agentFlag: AgentType,
+  isGlobal: boolean
+): Promise<string[]> {
+  const tempDir = path.join(os.tmpdir(), `sun-install-${Date.now()}`);
+
+  try {
+    const response = await fetch(zipUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to download: ${response.statusText}`);
+    }
+
+    const buffer = Buffer.from(await response.arrayBuffer());
+    const zip = new AdmZip(buffer);
+    await fs.ensureDir(tempDir);
+    zip.extractAllTo(tempDir, true);
+
+    // Zip may have a root folder, find the actual content
+    const entries = await fs.readdir(tempDir);
+    const extractedDir = entries.length === 1 && (await fs.stat(path.join(tempDir, entries[0]))).isDirectory()
+      ? path.join(tempDir, entries[0])
+      : tempDir;
+
+    const skillDirs = await findSkillDirectories(extractedDir);
+    if (skillDirs.length === 0) {
+      throw new Error(`No skills found in "${source.originalInput}". A skill must contain a SKILL.md file.`);
+    }
+
+    const installedSkills: string[] = [];
+    for (const skillDir of skillDirs) {
+      const skillName = await installSkillDirectory(skillDir, agentFlag, isGlobal);
+      installedSkills.push(skillName);
+    }
+
+    return installedSkills;
+  } finally {
+    await fs.remove(tempDir).catch(() => {});
+  }
+}
+
+/**
  * Install skill(s) from GitHub using degit.
  * After downloading, checks if it's a skill or searches direct children for SKILL.md.
  */
@@ -136,8 +184,16 @@ export async function installSkill(
     case 'local':
       skillNames = await installFromLocal(source, agentFlag, isGlobal);
       break;
+    case 'shortcut': {
+      const zipUrl = await getShortcutZipUrl(source.originalInput);
+      if (zipUrl) {
+        skillNames = await installFromZip(zipUrl, source, agentFlag, isGlobal);
+      } else {
+        skillNames = await installFromGithub(source, agentFlag, isGlobal);
+      }
+      break;
+    }
     case 'github':
-    case 'shortcut':
       skillNames = await installFromGithub(source, agentFlag, isGlobal);
       break;
     default:

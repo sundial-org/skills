@@ -17,34 +17,49 @@ Write a neutral, factual summary that:
 
 ### 2. Claims and Evidence
 
-Evaluate whether claims are supported:
+Evaluate whether claims are supported **and grounded in what the literature shows**:
 
 **Checklist to address:**
 - Are claims supported by clear and convincing evidence?
+- **Do claimed improvements align with what adjacent work shows is achievable?**
+- **Are baselines implemented the same way as in their original papers?**
 - Which claims are problematic and why?
 - Do proposed methods/evaluation criteria make sense for the problem?
 - Did you check proofs for theoretical claims? Which ones? Issues?
 - Did you check experimental designs/analyses? Which ones? Issues?
 - Did you review supplementary material? Which parts?
 
-**Example (well-supported):**
-> The main claim that X outperforms Y on benchmark Z is well-supported by Table 2, which shows consistent improvements across all metrics with appropriate statistical significance testing (p < 0.05).
+**Example (well-supported with literature grounding):**
+> The main claim that X outperforms Y on benchmark Z is well-supported by Table 2, which shows consistent improvements across all metrics with appropriate statistical significance testing (p < 0.05). The improvement magnitude (+3.2%) is reasonable compared to recent work [Paper A] (+2.8%) and [Paper B] (+3.5%), suggesting the results are credible.
 
-**Example (problematic):**
-> The claim that the method is "robust to noise" (Section 4.2) is not convincingly supported. The noise experiments only test Gaussian noise at σ=0.1, while practical applications involve diverse noise types and magnitudes.
+**Example (problematic - not grounded in literature):**
+> The claim of "state-of-the-art" performance (Abstract, Section 5) is questionable. While the method outperforms baseline [X] from 2020, it does not compare to recent methods [Y, 2024] and [Z, 2023], which report higher scores on the same benchmarks. Without these comparisons, the SOTA claim is unsupported.
+
+**Example (problematic - methodology differs from standard):**
+> The claim that the method is "robust to noise" (Section 4.2) is not convincingly supported. The noise experiments only test Gaussian noise at σ=0.1, while adjacent work [Paper C, Paper D] tests multiple noise types and magnitudes up to σ=0.5. The evaluation is insufficient by field standards.
 
 ### 3. Relation to Prior Work
 
 Address these questions:
 - How are contributions related to broader scientific literature?
+- **What specific papers from your literature search are missing from citations?**
+- **Does the methodology align with how adjacent papers approach the problem?**
 - Are there essential related works not cited?
 - How well-versed are you with the literature? (private, not shown to authors)
 
 **Example (good contextualization):**
-> The paper builds appropriately on [foundational work]. The comparison to [recent baseline] is fair. One relevant missing reference is [paper], which addresses similar efficiency concerns.
+> The paper builds appropriately on [foundational work]. The comparison to [recent baseline] is fair and uses the same experimental setup as [original paper]. The methodology follows standard practices in this area, similar to [adjacent work 1, 2]. One relevant missing reference is [paper], which addresses similar efficiency concerns and reports comparable improvements.
 
-**Example (missing context):**
-> The key contribution is a linear-time algorithm. The paper cites only a quadratic-time algorithm [ABC'20] as prior work, but [DEF'24] from ICML 2024 already achieved O(n log n) time for this problem, which should be discussed and compared.
+**Example (major missing citations):**
+> **This is a critical weakness.** The paper claims to be "the first efficient approach" but my literature search found several highly relevant papers not cited:
+> - [Paper A, 2024] addresses the exact same problem with a similar transformer-based approach
+> - [Paper B, 2023] reports superior results (15.2 vs. 12.8 in this paper) on the same benchmark
+> - [Paper C, 2024] uses the same loss function and architectural components
+>
+> These papers directly contradict the novelty claims and change the evaluation of this work. The authors must discuss and compare against this work.
+
+**Example (methodology not grounded):**
+> The paper uses a non-standard evaluation protocol (80/20 train/test split, no validation set) that differs from how [Paper X, Y, Z] evaluate on this benchmark (standard is 70/10/20 split). This makes results incomparable to prior work and suggests possible overfitting.
 
 ### 4. Strengths
 
@@ -62,17 +77,20 @@ Be specific and substantive. Good strengths are:
 
 ### 5. Weaknesses
 
-Be constructive. Good weaknesses:
+Be constructive **and literature-grounded**. Good weaknesses:
 - Are specific about the issue
+- **Reference specific papers from the literature**
 - Explain severity (critical vs. minor)
 - Suggest how to address when possible
 
 **Example:**
-> **W1. (Major)** The experiments compare against [baseline1] and [baseline2] from 2020, but more recent methods [baseline3] (2024) and [baseline4] (2023) achieve stronger results on these benchmarks and should be included.
+> **W1. (Critical)** The experiments compare against [baseline1] and [baseline2] from 2020, but more recent methods [baseline3] (2024) and [baseline4] (2023) achieve stronger results on these benchmarks (17.3 and 16.8 vs. the proposed method's 15.2) and should be included. Without comparison to these methods, it's impossible to assess whether this represents progress.
 >
-> **W2. (Moderate)** The assumption in Theorem 2.1 that X is bounded may not hold in practice for [applications]. The paper should discuss when this assumption is reasonable.
+> **W2. (Major)** The methodology deviates from field standards without justification. Adjacent work [Paper A, B, C] all use dataset split X and metric Y, while this paper uses split Z and metric W, making results incomparable. The paper should either follow standard practices or provide strong justification for the deviation.
 >
-> **W3. (Minor)** The notation switches between x and X for the same quantity between Sections 3 and 4.
+> **W3. (Moderate)** The assumption in Theorem 2.1 that X is bounded may not hold in practice for [applications]. The paper should discuss when this assumption is reasonable. Related work [Paper D] relaxes this assumption—how does this paper's result compare?
+>
+> **W4. (Minor)** The notation switches between x and X for the same quantity between Sections 3 and 4.
 
 ### 6. Questions for Authors
 
@@ -94,20 +112,32 @@ Number your questions and explain how answers affect evaluation:
 
 ### 8. Overall Recommendation
 
-Provide score (1-5) with justification:
+Provide score (1-5) with justification **grounded in literature comparison**:
 
-| Score | Label | When to Use |
-|-------|-------|-------------|
-| 5 | Strong Accept | Excellent paper, top 5-10%, would advocate for acceptance |
-| 4 | Accept | Good paper, solid contribution, belongs at venue |
-| 3 | Weak Accept | Borderline, leans accept, has notable weaknesses |
-| 2 | Weak Reject | Borderline, leans reject, insufficient contribution or issues |
-| 1 | Reject | Clear rejection, significant issues |
+| Score | Label | When to Use | Frequency |
+|-------|-------|-------------|-----------|
+| 5 | Strong Accept | Excellent paper, top 5-10%, will be influential, no major flaws | Rare |
+| 4 | Accept | Good paper, solid contribution, rigorous execution, clear improvement over literature | Uncommon |
+| 3 | Weak Accept | Borderline accept, some merit but notable limitations or incremental | Common |
+| 2 | Weak Reject | Borderline reject, insufficient contribution or major methodological issues | Common |
+| 1 | Reject | Clear rejection, fundamental flaws or no contribution | When warranted |
 
-**Example:**
+**Example (score 2 - common):**
+> **Overall: 2 (Weak Reject)**
+>
+> While the paper tackles an interesting problem, the contribution is insufficient relative to existing work. The main issues are: (1) Missing comparisons to recent methods [X, Y, Z] that achieve stronger results (W1), (2) The claimed novelty of component A is contradicted by [Paper B] which proposed the same technique (W3), and (3) The experimental setup deviates from standards without justification (W2). The work appears incremental rather than a significant advance over the literature.
+
+**Example (score 3 - common):**
 > **Overall: 3 (Weak Accept)**
 >
-> This paper presents an interesting approach to [problem] with promising results. The theoretical analysis is novel (S1) and experiments show improvements (S2). However, the comparison to recent baselines is incomplete (W1), which makes it difficult to assess the true contribution. If the authors can address Q1 and Q2 satisfactorily in the rebuttal, I would be willing to increase my score.
+> This paper presents an interesting approach to [problem] with promising results. The theoretical analysis is novel compared to prior work (S1) and experiments show improvements over most baselines (S2). However, the comparison to recent baselines is incomplete—[Paper X] from 2024 is not compared (W1), which makes it difficult to fully assess the contribution. If the authors can address Q1 and Q2 satisfactorily in the rebuttal, I would be willing to increase my score.
+
+**Example (score 4 - uncommon, require strong evidence):**
+> **Overall: 4 (Accept)**
+>
+> This is a solid paper that makes clear contributions beyond the literature. The proposed method achieves consistent improvements over all recent baselines [X, Y, Z] from 2023-2024 across multiple benchmarks (S1). The experimental design is rigorous and follows field standards. The ablations clearly demonstrate that the novel components contribute to performance (S2). While there are minor writing issues (W3), these do not detract from the solid technical contribution. This work will be useful to the community.
+
+**Calibration reminder**: If you find yourself giving mostly 4s and 5s, you're being too generous. Most papers should receive 2s or 3s.
 
 ### 9. Confidence Score
 
@@ -169,17 +199,18 @@ What's promising about this research direction:
 
 ### 3. Key Gaps to Address
 
-What's missing before this is publishable:
+What's missing before this is publishable **based on literature standards**:
 - Missing sections or components
-- Experiments needed
+- Experiments needed to match what adjacent papers do
 - Analysis required
+- **Missing baselines that recent papers compare against**
 
 **Example:**
-> **G1.** The current experiments only use synthetic data. Standard benchmarks (Long Range Arena, PG-19) are essential for publication.
+> **G1. (Critical)** The current experiments only use synthetic data. Based on recent work in this area [Paper A, B, C], standard benchmarks (Long Range Arena, PG-19) are essential for publication. All three cited papers use these benchmarks, so they're the community standard.
 >
-> **G2.** No comparison to existing efficient attention methods (Longformer, BigBird, Flash Attention). These are mandatory baselines.
+> **G2. (Critical)** No comparison to existing efficient attention methods (Longformer, BigBird, Flash Attention). These are mandatory baselines—every recent paper in efficient transformers compares to these. Without them, the paper won't be competitive.
 >
-> **G3.** Missing ablation study on sparsity hyperparameters.
+> **G3. (Important)** Missing ablation study on sparsity hyperparameters. Adjacent work [Paper D] shows that sparsity ratio significantly affects the efficiency-quality tradeoff, so this needs thorough analysis.
 
 ### 4. Methodology Concerns
 

@@ -30,7 +30,18 @@ This step applies to ALL input types. Grounding in reality is essential for any 
 1. Generate 3-5 search queries based on the research topic: benchmarks/baselines, same problem, related techniques
 2. Use WebSearch to find recent arXiv papers and published work
 3. Fetch abstracts of 5-10 most relevant papers
-4. Synthesize: How does this work relate to prior art? What's the competitive landscape? What gaps exist?
+4. **Critically synthesize**:
+   - What specific claims in this paper are already addressed by prior work?
+   - What are the actual quantitative improvements over recent baselines?
+   - Are claimed "novelties" actually novel given the literature?
+   - What gaps truly exist vs. what the authors claim exists?
+
+**Critical mindset**:
+- Your job is to verify claims against reality, not accept them at face value
+- Most papers overclaim—your review should ground their contributions in what the literature actually shows
+- Default to skepticism: Assume claims are overstated until proven otherwise by evidence
+- Authors have selection bias toward their own work; you represent the community's interests
+- Be the critical voice that ensures published work actually advances the field
 
 Then proceed to mode-specific evaluation.
 
@@ -39,32 +50,50 @@ Then proceed to mode-specific evaluation.
 ## Full Review Mode (Complete Papers)
 
 ### Step 3: Systematic Evaluation
-Evaluate across 7 dimensions (see `references/evaluation-criteria.md`):
+Evaluate across 7 dimensions (see `references/evaluation-criteria.md`). **Default to skepticism—require strong evidence to score highly.**
 
-| Dimension | Key Questions |
+| Dimension | Key Questions (Answer with Literature Evidence) |
 |-----------|---------------|
-| Originality | Novel methods? Creative combination? New framing? |
-| Importance | Significant question? Potential impact? |
-| Claims Support | Evidence convincing? Proofs correct? |
-| Experimental Soundness | Design appropriate? Baselines fair? |
-| Clarity | Well-organized? Clear writing? |
-| Community Value | Will researchers build on this? |
-| Prior Work Context | Properly situated? Key citations? |
+| Originality | Is this truly novel given recent work X, Y, Z? What specific aspects are incremental vs. novel? |
+| Importance | Why does this problem matter? What's the real-world impact? Who will care? |
+| Claims Support | Do experiments actually prove the claims? What alternative explanations exist? |
+| Experimental Soundness | Are baselines from 2023+? Are comparisons fair? What's missing? |
+| Clarity | Can I reproduce this from the paper? Are claims precisely stated? |
+| Community Value | Will this change how people work? Or just add noise? |
+| Prior Work Context | Are comparisons accurate? What recent work (last 2 years) is missing? |
 
-### Step 4: Generate Review
+**Evaluation mindset**:
+- Start from neutral and require evidence to move up or down
+- Compare every claim against what you found in the literature search
+- Most papers are incremental—high originality scores are rare
+- Weak baselines or missing comparisons are critical flaws, not minor issues
+
+### Step 4: Critical Cross-Check Against Literature
+
+Before writing the review, explicitly verify:
+
+1. **Baselines check**: List baselines used in paper. List baselines from your literature search of adjacent papers. What's missing?
+2. **Methodology check**: How do 2-3 adjacent papers approach this problem? Does this paper follow similar methodology? If not, why not?
+3. **Claims check**: List main claims. For each, cite specific evidence from experiments or proofs. If insufficient, note it.
+4. **Citations check**: Which papers from your search are cited? Which are missing? Why?
+5. **Novelty check**: List claimed novelties. For each, cite specific prior work that does or doesn't do this.
+
+This step is not optional. Your review must reference specific findings from your literature search.
+
+### Step 5: Generate Review
 Follow the ICML review form (see `references/review-template.md`):
 
 1. **Summary** - Neutral, factual (should not be disputed by authors)
-2. **Claims and Evidence** - Are claims supported?
-3. **Relation to Prior Work** - Proper context? Missing citations?
-4. **Strengths** - Specific and substantive
-5. **Weaknesses** - Constructive, explain severity
+2. **Claims and Evidence** - Are claims supported? **Compare to what literature shows**
+3. **Relation to Prior Work** - Proper context? Missing citations? **List specific missing papers**
+4. **Strengths** - Specific and substantive, **compared to standards in adjacent work**
+5. **Weaknesses** - Constructive, explain severity, **cite specific literature for comparison**
 6. **Questions for Authors** - Numbered, explain impact on evaluation
 7. **Minor Issues** - Typos, suggestions
-8. **Overall Recommendation** - 1-5 scale with justification
+8. **Overall Recommendation** - 1-5 scale with justification **grounded in literature comparison**
 9. **Confidence Score** - 1-5 scale
 
-### Step 5: Quality Check
+### Step 6: Quality Check
 - Verify all claims in review are substantiated
 - Ensure constructive tone
 - Check specificity of strengths/weaknesses
@@ -72,10 +101,15 @@ Follow the ICML review form (see `references/review-template.md`):
 
 ## Key Principles
 
-### Be Constructive
-"Review the papers of others as you would wish your own to be reviewed"
+### Be Rigorous AND Constructive
+Your primary duty is to the research community—publishing weak papers dilutes the literature.
 
-Reviews create value for authors (actionable feedback) and community (advancing the field).
+- **Be honest**: Don't inflate scores to be nice. If baselines are weak, say so clearly.
+- **Be specific**: Always cite which literature contradicts or supports claims.
+- **Be fair**: Criticism should be substantiated by evidence or literature.
+- **Be actionable**: Tell authors exactly what would fix the issues.
+
+"Review the papers of others as you would wish your own to be reviewed"—with rigor, honesty, and specific feedback grounded in the literature.
 
 ### Be Specific
 Bad: "The experiments are weak"
@@ -84,12 +118,36 @@ Good: "Experiments compare only against [X] from 2019, but recent baselines [Y] 
 ### Fair Novelty Assessment
 Originality may arise from: creative combinations, new domains, removing restrictive assumptions, novel datasets, new problem formulations.
 
+**But**: Most claimed novelty is actually incremental. Verify against literature before accepting novelty claims.
+
+### Score Calibration
+
+Use this reference frame:
+- **5s are rare**: Reserve for papers that will clearly influence the field
+- **4s are uncommon**: Solid papers with rigorous execution and clear contributions
+- **3s are common**: Papers with merit but significant limitations
+- **2s are common**: Incremental work or work with major methodological issues
+- **1s indicate fundamental problems**: Wrong results, no contribution, or severe ethical issues
+
+If you find yourself giving mostly 4s and 5s, you're likely being too generous. Re-calibrate against what the literature shows is standard.
+
 ### Application-Driven Papers
 For application-driven ML: methods should fit real-world constraints, non-standard datasets acceptable if documented, compare against domain baselines.
 
 ## Rating Scales
 
-**Overall (1-5):** 5=Strong Accept, 4=Accept, 3=Weak Accept, 2=Weak Reject, 1=Reject
+**Overall (1-5):** Use the full range. Most papers should be 2-3.
+- **5 (Strong Accept)**: Significant contribution, will be influential, no major flaws
+- **4 (Accept)**: Solid contribution, rigorous execution, minor issues only
+- **3 (Weak Accept)**: Contribution exists but limited; or good idea with execution flaws
+- **2 (Weak Reject)**: Incremental contribution insufficient for venue; or significant methodological issues
+- **1 (Reject)**: Fundamental flaws, not ready, or no meaningful contribution
+
+**Red flags that should lower scores**:
+- Baselines older than 2 years (unless explicitly justified)
+- Missing comparisons to obvious related work from literature search
+- Claims not directly supported by presented experiments
+- Novelty claims contradicted by prior work
 
 **Confidence (1-5):** 5=Expert/certain, 4=Confident, 3=Fairly confident, 2=Uncertain, 1=Not in area
 

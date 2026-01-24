@@ -16,10 +16,11 @@ Keep changes applied throughout. Do NOT re-stash between commits. Only drop the 
 
 ### 2. Survey and number hunks
 
-Generate patches for all modified files and list their hunks:
+Generate patches for all modified files and list their hunks.
+**Quote paths with special characters** (brackets, spaces, etc.):
 ```bash
-git diff <file> > /tmp/<file>.patch
-.claude/skills/committer/scripts/extract-hunks.py /tmp/<file>.patch --list
+git diff "<file>" > /tmp/<file>.patch
+.claude/skills/commit-splitter/scripts/extract-hunks.py /tmp/<file>.patch --list
 ```
 
 This outputs numbered hunks:
@@ -59,19 +60,19 @@ Commit 2: "perf: async + min_containers" - modal_app.py hunks 2,3
 
 **Partial files (specific hunks):**
 ```bash
-.claude/skills/committer/scripts/extract-hunks.py /tmp/<file>.patch <hunk_numbers> > /tmp/commit.patch
+.claude/skills/commit-splitter/scripts/extract-hunks.py /tmp/<file>.patch <hunk_numbers> > /tmp/commit.patch
 git apply --cached /tmp/commit.patch
 ```
 
 Example:
 ```bash
 # Commit 1: just perf logging (hunk 1)
-.claude/skills/committer/scripts/extract-hunks.py /tmp/modal_app.patch 1 > /tmp/commit1.patch
+.claude/skills/commit-splitter/scripts/extract-hunks.py /tmp/modal_app.patch 1 > /tmp/commit1.patch
 git apply --cached /tmp/commit1.patch
 git commit -m "perf: add logging"
 
 # Commit 2: async + min_containers (hunks 2,3)
-.claude/skills/committer/scripts/extract-hunks.py /tmp/modal_app.patch 2,3 > /tmp/commit2.patch
+.claude/skills/commit-splitter/scripts/extract-hunks.py /tmp/modal_app.patch 2,3 > /tmp/commit2.patch
 git apply --cached /tmp/commit2.patch
 git commit -m "perf: async and min_containers"
 ```
@@ -80,16 +81,16 @@ After each commit, verify with `git diff --cached --stat`.
 
 ### 5. extract-hunks.py reference
 
-Location: `.claude/skills/committer/scripts/extract-hunks.py`
+Location: `.claude/skills/commit-splitter/scripts/extract-hunks.py`
 
 ```bash
 # List hunks with summaries
-.claude/skills/committer/scripts/extract-hunks.py file.patch --list
+.claude/skills/commit-splitter/scripts/extract-hunks.py file.patch --list
 
 # Extract specific hunks
-.claude/skills/committer/scripts/extract-hunks.py file.patch 1,3,5      # hunks 1, 3, 5
-.claude/skills/committer/scripts/extract-hunks.py file.patch 2-4        # hunks 2, 3, 4
-.claude/skills/committer/scripts/extract-hunks.py file.patch 1,3-5,7    # mixed
+.claude/skills/commit-splitter/scripts/extract-hunks.py file.patch 1,3,5      # hunks 1, 3, 5
+.claude/skills/commit-splitter/scripts/extract-hunks.py file.patch 2-4        # hunks 2, 3, 4
+.claude/skills/commit-splitter/scripts/extract-hunks.py file.patch 1,3-5,7    # mixed
 ```
 
 The script outputs a valid patch to stdout. Redirect to a file, then `git apply --cached`.

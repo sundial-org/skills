@@ -1,0 +1,47 @@
+{
+  "current_stage": 1,
+  "current_iteration": 2,
+  "entries": [
+    {
+      "stage": 0,
+      "iteration": 1,
+      "tree_file": "stage_0_iter_1.json",
+      "started": "2024-01-15T10:00:00",
+      "completed": "2024-01-15T10:30:00",
+      "outcome": "success"
+    },
+    {
+      "stage": 1,
+      "iteration": 1,
+      "tree_file": "stage_1_iter_1.json",
+      "started": "2024-01-15T10:30:00",
+      "completed": "2024-01-15T11:00:00",
+      "outcome": "success"
+    },
+    {
+      "stage": 2,
+      "iteration": 1,
+      "tree_file": "stage_2_iter_1.json",
+      "started": "2024-01-15T11:00:00",
+      "completed": "2024-01-15T12:00:00",
+      "outcome": "success"
+    },
+    {
+      "stage": 3,
+      "iteration": 1,
+      "tree_file": "stage_3_iter_1.json",
+      "started": "2024-01-15T12:00:00",
+      "completed": "2024-01-15T14:00:00",
+      "outcome": "loop_back",
+      "loop_reason": "Results suggest hypothesis needs revision"
+    },
+    {
+      "stage": 1,
+      "iteration": 2,
+      "tree_file": "stage_1_iter_2.json",
+      "started": "2024-01-15T14:00:00",
+      "completed": null,
+      "outcome": null
+    }
+  ]
+}

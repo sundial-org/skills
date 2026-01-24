@@ -1,0 +1,13 @@
+{
+  "project_path": "/tmp/test_project_loop",
+  "hypothesis": "Hypothesis that needed revision",
+  "variables": {
+    "independent": ["variable_a"],
+    "dependent": ["metric_x"],
+    "control": ["seed"]
+  },
+  "resource_budget": {
+    "max_iterations": 15,
+    "max_time": "1h"
+  }
+}

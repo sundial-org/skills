@@ -1,0 +1,66 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+
+\title{Sample Paper for Testing}
+\author{Test Author}
+\date{2024}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This is a sample paper used for testing the LaTeX compilation script.
+It includes basic elements like citations, figures, and tables.
+\end{abstract}
+
+\section{Introduction}
+
+This is a test document. We cite some work here~\cite{example2024paper}.
+
+\section{Method}
+
+Our method involves the following equation:
+\begin{equation}
+    y = mx + b
+\end{equation}
+
+\section{Results}
+
+See Table~\ref{tab:results} for our main results.
+
+\begin{table}[h]
+\centering
+\caption{Main results}
+\label{tab:results}
+\begin{tabular}{lcc}
+\toprule
+Method & Accuracy & Time \\
+\midrule
+Baseline & 0.75 & 10s \\
+Ours & 0.85 & 12s \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+See Figure~\ref{fig:plot} for a visualization.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\textwidth]{figures/plot.png}
+\caption{Sample plot}
+\label{fig:plot}
+\end{figure}
+
+\section{Conclusion}
+
+This concludes our test paper.
+
+\bibliographystyle{plain}
+\bibliography{refs}
+
+\end{document}

@@ -1,0 +1,202 @@
+{
+  "description": "Example experiment tree demonstrating the AI Co-Scientist data structure",
+  "project": {
+    "project_path": "/path/to/research-project",
+    "hypothesis": "Increasing data augmentation probability improves model robustness without significantly degrading clean accuracy",
+    "variables": {
+      "independent": ["augmentation_probability", "augmentation_type"],
+      "dependent": ["adversarial_accuracy", "clean_accuracy", "training_time"],
+      "control": ["model_architecture", "training_epochs", "random_seed", "dataset"]
+    },
+    "resource_budget": {
+      "max_iterations": 30,
+      "max_time": "8h"
+    }
+  },
+  "stage_history": {
+    "current_stage": 3,
+    "current_iteration": 1,
+    "entries": [
+      {
+        "stage": 0,
+        "iteration": 1,
+        "tree_file": "stage_0_iter_1.json",
+        "started": "2024-01-15T09:00:00",
+        "completed": "2024-01-15T10:00:00",
+        "outcome": "success"
+      },
+      {
+        "stage": 1,
+        "iteration": 1,
+        "tree_file": "stage_1_iter_1.json",
+        "started": "2024-01-15T10:00:00",
+        "completed": "2024-01-15T10:30:00",
+        "outcome": "success"
+      },
+      {
+        "stage": 2,
+        "iteration": 1,
+        "tree_file": "stage_2_iter_1.json",
+        "started": "2024-01-15T10:30:00",
+        "completed": "2024-01-15T11:00:00",
+        "outcome": "success"
+      },
+      {
+        "stage": 3,
+        "iteration": 1,
+        "tree_file": "stage_3_iter_1.json",
+        "started": "2024-01-15T11:00:00",
+        "completed": null,
+        "outcome": null
+      }
+    ]
+  },
+  "stage_3_tree": {
+    "stage": 3,
+    "iteration": 1,
+    "nodes": {
+      "node-001": {
+        "id": "node-001",
+        "parent_id": null,
+        "children": ["node-002", "node-003", "node-004"],
+        "step": 1,
+        "stage": 3,
+        "plan": "Establish baseline with no augmentation (0%)",
+        "code": "# Baseline experiment\nimport torch\nfrom train import train_model\n\nmodel = train_model(\n    augmentation_prob=0.0,\n    epochs=100,\n    seed=42\n)\n\nclean_acc = evaluate(model, test_loader)\nadv_acc = evaluate_adversarial(model, test_loader)\n\nprint(f'Clean accuracy: {clean_acc}')\nprint(f'Adversarial accuracy: {adv_acc}')",
+        "term_out": "Clean accuracy: 0.923\nAdversarial accuracy: 0.412",
+        "analysis": "Baseline established. Clean accuracy is strong at 92.3%, but adversarial accuracy is low at 41.2%. This confirms the model is vulnerable to adversarial attacks without augmentation.",
+        "metric": {
+          "value": 0.412,
+          "name": "adversarial_accuracy",
+          "maximize": true
+        },
+        "is_buggy": false,
+        "plots": ["plots/baseline_confusion.png"],
+        "commit_hash": "a1b2c3d"
+      },
+      "node-002": {
+        "id": "node-002",
+        "parent_id": "node-001",
+        "children": ["node-005"],
+        "step": 2,
+        "stage": 3,
+        "plan": "Test with 25% augmentation probability",
+        "code": "model = train_model(\n    augmentation_prob=0.25,\n    epochs=100,\n    seed=42\n)\n\nclean_acc = evaluate(model, test_loader)\nadv_acc = evaluate_adversarial(model, test_loader)\n\nprint(f'Clean accuracy: {clean_acc}')\nprint(f'Adversarial accuracy: {adv_acc}')",
+        "term_out": "Clean accuracy: 0.918\nAdversarial accuracy: 0.487",
+        "analysis": "25% augmentation shows improvement. Adversarial accuracy increased by 7.5 percentage points (41.2% -> 48.7%) with minimal clean accuracy loss (92.3% -> 91.8%). Promising direction.",
+        "metric": {
+          "value": 0.487,
+          "name": "adversarial_accuracy",
+          "maximize": true
+        },
+        "is_buggy": false,
+        "plots": ["plots/aug_25_results.png"],
+        "commit_hash": "e4f5g6h"
+      },
+      "node-003": {
+        "id": "node-003",
+        "parent_id": "node-001",
+        "children": [],
+        "step": 3,
+        "stage": 3,
+        "plan": "Test with color-only augmentation at 50%",
+        "code": "model = train_model(\n    augmentation_prob=0.50,\n    augmentation_type='color',\n    epochs=100,\n    seed=42\n)",
+        "term_out": "RuntimeError: CUDA out of memory. Tried to allocate 2.00 GiB",
+        "analysis": "Experiment failed due to memory issues. The color augmentation pipeline uses more memory than expected. Need to reduce batch size or optimize augmentation.",
+        "metric": null,
+        "is_buggy": true,
+        "plots": [],
+        "commit_hash": "i7j8k9l"
+      },
+      "node-004": {
+        "id": "node-004",
+        "parent_id": "node-001",
+        "children": ["node-006"],
+        "step": 4,
+        "stage": 3,
+        "plan": "Test with 50% geometric augmentation",
+        "code": "model = train_model(\n    augmentation_prob=0.50,\n    augmentation_type='geometric',\n    epochs=100,\n    seed=42\n)\n\nclean_acc = evaluate(model, test_loader)\nadv_acc = evaluate_adversarial(model, test_loader)",
+        "term_out": "Clean accuracy: 0.905\nAdversarial accuracy: 0.534",
+        "analysis": "50% geometric augmentation significantly improves adversarial accuracy (53.4%) with acceptable clean accuracy drop (90.5%). This meets the hypothesis criteria of >10% improvement.",
+        "metric": {
+          "value": 0.534,
+          "name": "adversarial_accuracy",
+          "maximize": true
+        },
+        "is_buggy": false,
+        "plots": ["plots/aug_50_geo_results.png"],
+        "commit_hash": "m0n1o2p"
+      },
+      "node-005": {
+        "id": "node-005",
+        "parent_id": "node-002",
+        "children": [],
+        "step": 5,
+        "stage": 3,
+        "plan": "Increase to 50% augmentation (mixed type) building on 25% success",
+        "code": "model = train_model(\n    augmentation_prob=0.50,\n    augmentation_type='mixed',\n    epochs=100,\n    seed=42\n)",
+        "term_out": "Clean accuracy: 0.901\nAdversarial accuracy: 0.562",
+        "analysis": "Mixed augmentation at 50% achieves best adversarial accuracy so far (56.2%) with clean accuracy at 90.1%. This exceeds the 10% improvement target.",
+        "metric": {
+          "value": 0.562,
+          "name": "adversarial_accuracy",
+          "maximize": true
+        },
+        "is_buggy": false,
+        "plots": ["plots/aug_50_mixed_results.png"],
+        "commit_hash": "q3r4s5t"
+      },
+      "node-006": {
+        "id": "node-006",
+        "parent_id": "node-004",
+        "children": ["node-007"],
+        "step": 6,
+        "stage": 3,
+        "plan": "Push to 75% geometric augmentation",
+        "code": "model = train_model(\n    augmentation_prob=0.75,\n    augmentation_type='geometric',\n    epochs=100,\n    seed=42\n)",
+        "term_out": "Clean accuracy: 0.878\nAdversarial accuracy: 0.589",
+        "analysis": "75% augmentation further improves adversarial accuracy (58.9%) but clean accuracy drops more significantly (87.8%). Approaching the 2% degradation threshold.",
+        "metric": {
+          "value": 0.589,
+          "name": "adversarial_accuracy",
+          "maximize": true
+        },
+        "is_buggy": false,
+        "plots": ["plots/aug_75_geo_results.png"],
+        "commit_hash": "u6v7w8x"
+      },
+      "node-007": {
+        "id": "node-007",
+        "parent_id": "node-006",
+        "children": [],
+        "step": 7,
+        "stage": 3,
+        "plan": "Test extreme 90% augmentation to find upper bound",
+        "code": "model = train_model(\n    augmentation_prob=0.90,\n    augmentation_type='geometric',\n    epochs=100,\n    seed=42\n)",
+        "term_out": "Clean accuracy: 0.834\nAdversarial accuracy: 0.612",
+        "analysis": "90% augmentation achieves highest adversarial accuracy (61.2%) but clean accuracy drops significantly (83.4%). This exceeds the 2% degradation threshold. 75% appears to be the optimal balance.",
+        "metric": {
+          "value": 0.612,
+          "name": "adversarial_accuracy",
+          "maximize": true
+        },
+        "is_buggy": false,
+        "plots": ["plots/aug_90_geo_results.png"],
+        "commit_hash": "y9z0a1b"
+      }
+    },
+    "root_ids": ["node-001"],
+    "created_at": "2024-01-15T11:00:00",
+    "completed_at": null,
+    "outcome": null
+  },
+  "notes": {
+    "visualization": "This tree would render with node-001 at the top, branching to three children (002, 003, 004). Node-003 would appear red (buggy). Nodes 002 and 004 continue branching downward.",
+    "best_path": "The most promising path is 001 -> 004 -> 006 -> 007, showing progressive improvement with geometric augmentation.",
+    "next_steps": [
+      "Validate 75% augmentation as optimal (multiple seeds)",
+      "Run ablation studies on augmentation types",
+      "Test on additional datasets"
+    ]
+  }
+}

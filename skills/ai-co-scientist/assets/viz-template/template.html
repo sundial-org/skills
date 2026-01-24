@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Co-Scientist - Experiment Tree</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            overflow: hidden;
+        }
+
+        #header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: #16213e;
+            border-bottom: 1px solid #0f3460;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 100;
+        }
+
+        #header h1 {
+            font-size: 18px;
+            font-weight: 500;
+            color: #e94560;
+        }
+
+        #header .hypothesis {
+            margin-left: 30px;
+            font-size: 14px;
+            color: #888;
+            max-width: 500px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        #stage-nav {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: #16213e;
+            border-bottom: 1px solid #0f3460;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 10px;
+            z-index: 99;
+        }
+
+        .stage-btn {
+            padding: 8px 16px;
+            border: 1px solid #0f3460;
+            border-radius: 4px;
+            background: transparent;
+            color: #888;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .stage-btn:hover {
+            border-color: #e94560;
+            color: #e94560;
+        }
+
+        .stage-btn.active {
+            background: #e94560;
+            border-color: #e94560;
+            color: white;
+        }
+
+        .stage-btn.completed {
+            border-color: #4ecca3;
+            color: #4ecca3;
+        }
+
+        .stage-btn.loop-back {
+            border-color: #ffc107;
+            color: #ffc107;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 110px;
+            left: 0;
+            right: 300px;
+            bottom: 0;
+        }
+
+        #details-panel {
+            position: fixed;
+            top: 110px;
+            right: 0;
+            width: 300px;
+            bottom: 0;
+            background: #16213e;
+            border-left: 1px solid #0f3460;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        #details-panel h2 {
+            font-size: 14px;
+            color: #e94560;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #details-panel .section {
+            margin-bottom: 20px;
+        }
+
+        #details-panel .label {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        #details-panel .value {
+            font-size: 13px;
+            color: #ccc;
+            line-height: 1.5;
+        }
+
+        #details-panel .code {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 11px;
+            background: #0d1117;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        #details-panel .metric {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #4ecca3;
+            color: #1a1a2e;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        #details-panel .metric.buggy {
+            background: #e94560;
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #888;
+        }
+
+        #legend {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(22, 33, 62, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #0f3460;
+            z-index: 50;
+        }
+
+        #legend .item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        #legend .item:last-child {
+            margin-bottom: 0;
+        }
+
+        #legend .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        #legend .dot.success { background: #4ecca3; }
+        #legend .dot.buggy { background: #e94560; }
+        #legend .dot.pending { background: #888; }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <h1>AI Co-Scientist</h1>
+        <span class="hypothesis" id="hypothesis-display"></span>
+    </div>
+
+    <div id="stage-nav">
+        <button class="stage-btn" data-stage="0">Stage 0: Literature</button>
+        <button class="stage-btn" data-stage="1">Stage 1: Hypothesis</button>
+        <button class="stage-btn" data-stage="2">Stage 2: Design</button>
+        <button class="stage-btn" data-stage="3">Stage 3: Experiment</button>
+        <button class="stage-btn" data-stage="4">Stage 4: Validation</button>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <div id="details-panel">
+        <h2>Node Details</h2>
+        <div id="node-details">
+            <div class="empty-state">
+                <h3>No Node Selected</h3>
+                <p>Click a node to view details</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="legend">
+        <div class="item"><span class="dot success"></span> Success</div>
+        <div class="item"><span class="dot buggy"></span> Buggy / Failed</div>
+        <div class="item"><span class="dot pending"></span> Pending</div>
+    </div>
+
+    <script>
+        // SCRIPT_PLACEHOLDER
+    </script>
+</body>
+</html>

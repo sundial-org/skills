@@ -1,0 +1,13 @@
+{
+  "project_path": "/tmp/test_project",
+  "hypothesis": "Increasing sample size improves prediction accuracy",
+  "variables": {
+    "independent": ["sample_size"],
+    "dependent": ["accuracy"],
+    "control": ["random_seed", "algorithm"]
+  },
+  "resource_budget": {
+    "max_iterations": 20,
+    "max_time": "2h"
+  }
+}

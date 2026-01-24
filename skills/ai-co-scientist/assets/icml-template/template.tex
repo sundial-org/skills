@@ -1,0 +1,275 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ICML Paper Template
+% AI Co-Scientist Generated Paper
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[accepted]{article}
+
+% Standard packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{xcolor}
+
+% Custom colors
+\definecolor{linkblue}{RGB}{0,102,204}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=linkblue,
+    citecolor=linkblue,
+    urlcolor=linkblue
+}
+
+% Theorem environments
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+
+% Custom commands
+\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+\newcommand{\method}{\textsc{MethodName}}
+
+% Title and authors
+\title{Paper Title Here: A Study of Something Important}
+
+\author{
+  Author One \\
+  Institution \\
+  \texttt{author1@email.com} \\
+  \And
+  Author Two \\
+  Institution \\
+  \texttt{author2@email.com} \\
+}
+
+\date{}
+
+\begin{document}
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ABSTRACT
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{abstract}
+% 150-250 words covering:
+% 1. Problem (1-2 sentences)
+% 2. Approach (2-3 sentences)
+% 3. Results (2-3 sentences)
+% 4. Significance (1 sentence)
+
+\todo{Write abstract following the 4-component structure}
+
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% INTRODUCTION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+\label{sec:introduction}
+
+% Paragraph 1: Context and problem
+\todo{Describe the broader context and specific problem}
+
+% Paragraph 2: Prior work gap
+\todo{Summarize what's been tried and what gap remains}
+
+% Paragraph 3: Our approach
+\todo{Describe our hypothesis and approach}
+
+% Paragraph 4: Contributions
+Our contributions are as follows:
+\begin{itemize}
+    \item \todo{Contribution 1}
+    \item \todo{Contribution 2}
+    \item \todo{Contribution 3}
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% RELATED WORK
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Related Work}
+\label{sec:related}
+
+% Group prior work into thematic categories
+
+\paragraph{Category 1.}
+\todo{Describe related approaches in this category}
+
+\paragraph{Category 2.}
+\todo{Describe related approaches in this category}
+
+\paragraph{Positioning.}
+\todo{Explain how our work differs from prior work}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% METHOD
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Method}
+\label{sec:method}
+
+\subsection{Problem Formulation}
+\label{sec:formulation}
+
+\todo{Formally define the problem with notation}
+
+\subsection{Our Approach}
+\label{sec:approach}
+
+\todo{Describe the proposed method step by step}
+
+% Example algorithm environment
+\begin{algorithm}[t]
+\caption{Algorithm Name}
+\label{alg:main}
+\begin{algorithmic}[1]
+\REQUIRE Input description
+\ENSURE Output description
+\STATE Initialize
+\FOR{each iteration}
+    \STATE Process step
+\ENDFOR
+\RETURN Result
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Implementation Details}
+\label{sec:implementation}
+
+\todo{Provide sufficient detail for reproducibility}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% EXPERIMENTS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Experiments}
+\label{sec:experiments}
+
+\subsection{Experimental Setup}
+\label{sec:setup}
+
+\paragraph{Datasets.}
+\todo{Describe datasets used}
+
+\paragraph{Baselines.}
+\todo{List baseline methods}
+
+\paragraph{Evaluation Metrics.}
+\todo{Define metrics used}
+
+\paragraph{Implementation.}
+\todo{Hardware, software, hyperparameters}
+
+\subsection{Main Results}
+\label{sec:results}
+
+\todo{Present main experimental results}
+
+% Example table
+\begin{table}[t]
+\caption{Main experimental results. Best results in \textbf{bold}.}
+\label{tab:main}
+\centering
+\begin{tabular}{lccc}
+\toprule
+Method & Metric 1 & Metric 2 & Metric 3 \\
+\midrule
+Baseline 1 & 0.00 & 0.00 & 0.00 \\
+Baseline 2 & 0.00 & 0.00 & 0.00 \\
+\textbf{Ours} & \textbf{0.00} & \textbf{0.00} & \textbf{0.00} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% Example figure
+\begin{figure}[t]
+\centering
+% \includegraphics[width=0.8\columnwidth]{figures/main_result.pdf}
+\caption{Main result visualization. \todo{Add figure}}
+\label{fig:main}
+\end{figure}
+
+\subsection{Ablation Studies}
+\label{sec:ablation}
+
+\todo{Analyze contribution of each component}
+
+% Example ablation table
+\begin{table}[t]
+\caption{Ablation study results.}
+\label{tab:ablation}
+\centering
+\begin{tabular}{lc}
+\toprule
+Configuration & Metric \\
+\midrule
+Full model & \textbf{0.00} \\
+w/o Component A & 0.00 \\
+w/o Component B & 0.00 \\
+w/o Component C & 0.00 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DISCUSSION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{Interpretation.}
+\todo{What do the results mean?}
+
+\paragraph{Limitations.}
+\todo{Acknowledge limitations of the work}
+
+\paragraph{Future Work.}
+\todo{Suggest directions for future research}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% CONCLUSION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusion}
+\label{sec:conclusion}
+
+\todo{Summarize problem, approach, findings, and main takeaway}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ACKNOWLEDGEMENTS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Uncomment for camera-ready version
+% \section*{Acknowledgements}
+% We thank...
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% REFERENCES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bibliographystyle{plain}
+\bibliography{refs}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% APPENDIX
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix
+\section{Additional Experiments}
+\label{app:experiments}
+
+\todo{Include additional experimental details if needed}
+
+\section{Hyperparameter Settings}
+\label{app:hyperparameters}
+
+\todo{Full hyperparameter table}
+
+\end{document}

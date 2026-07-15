@@ -16,7 +16,6 @@
 | nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-BF16 | Hybrid | MoE Large | 64K (256K†) |
 | nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16 | Hybrid | MoE Medium | 64K |
 | moonshotai/Kimi-K2.6 | Hybrid + Vision | MoE Large | 32K (128K†) |
-| moonshotai/Kimi-K2.5 | Hybrid + Vision | MoE Large | 32K (128K†) |
 | **Qwen/Qwen3.6-35B-A3B** | Hybrid + Vision | MoE Medium | 64K |
 | Qwen/Qwen3.6-27B | Hybrid + Vision | Dense Medium | 64K |
 | Qwen/Qwen3.5-397B-A17B | Hybrid + Vision | MoE Large | 64K (256K†) |
@@ -39,7 +38,7 @@
 - **Reasoning**: Always uses chain-of-thought
 - **Vision / Audio**: Accepts image / audio inputs (Inkling: text + image + audio, see [Inkling](inkling.md))
 
-**Retired (June 12, 2026):** all meta-llama models, Qwen3-235B/32B/30B-A3B/VL/4B variants (Qwen3-8B remains), Qwen3.5-35B-A3B, Qwen3.5-27B, DeepSeek-V3.1-Base, Kimi-K2-Thinking.
+**Retired (June 12, 2026):** all meta-llama models, Qwen3-235B/32B/30B-A3B/VL/4B variants (Qwen3-8B remains), Qwen3.5-35B-A3B, Qwen3.5-27B, DeepSeek-V3.1-Base, Kimi-K2-Thinking. **Kimi-K2.5 retired July 12, 2026** (use Kimi-K2.6). Replacements per model: https://tinker-docs.thinkingmachines.ai/tinker/model-deprecations/
 
 ## LoRA Primer
 

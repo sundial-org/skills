@@ -9,14 +9,16 @@ from tinker_cookbook.model_info import get_recommended_renderer_name
 from tinker_cookbook.renderers import get_renderer
 from tinker_cookbook.tokenizer_utils import get_tokenizer
 
-model_name = "meta-llama/Llama-3.1-8B"
+model_name = "Qwen/Qwen3-8B"
 renderer_name = get_recommended_renderer_name(model_name)
 
 tokenizer = get_tokenizer(model_name)
 renderer = get_renderer(name=renderer_name, tokenizer=tokenizer)
 ```
 
-**Renderer names:** `qwen3`, `qwen3_disable_thinking`, `qwen3_instruct`, `qwen3_vl`, `qwen3_vl_instruct`, `llama3`, `deepseekv3`, `deepseekv3_thinking`, `kimi_k2`, `gpt_oss_no_sysprompt`, `gpt_oss_low_reasoning`, `gpt_oss_medium_reasoning`, `gpt_oss_high_reasoning`, `role_colon`
+**Renderer names:** `tml_v0` (Inkling), `qwen3`, `qwen3_5`, `qwen3_instruct`, `qwen3_vl`, `qwen3_vl_instruct`, `llama3`, `deepseekv3`, `deepseekv3_thinking`, `kimi_k2`, `kimi_k25`, `kimi_k26` (+`_preserve_thinking`), `nemotron3`, `nemotron3_low_thinking`, `nemotron3_ultra` (+`_medium_thinking`), `gpt_oss_no_sysprompt`, `gpt_oss_low/medium/high_reasoning`, `role_colon`; most thinking renderers also have a `_disable_thinking` variant. Prefer `get_recommended_renderer_name(model_name)` over hardcoding (Qwen3.5/3.6 → `qwen3_5`, Inkling → `tml_v0`).
+
+Inkling's `tml_v0` is backed by the separate `tml-renderers` package through the same `get_renderer` flow — see [Inkling](inkling.md).
 
 ## HuggingFace Compatibility
 
@@ -82,8 +84,9 @@ sampling_params = SamplingParams(
 
 ```python
 output_tokens = result.sequences[0].tokens
-message, success = renderer.parse_response(output_tokens)
-# {"role": "assistant", "content": "..."}
+message, termination = renderer.parse_response(output_tokens)
+# message: {"role": "assistant", "content": "..."}
+# termination: ParseTermination enum (e.g. STOP_SEQUENCE), not a boolean
 ```
 
 ## TrainOnWhat Enum
@@ -120,6 +123,8 @@ messages = [
 
 Use `LAST` for classification, reward modeling, preference learning.
 
+Note: some renderers (e.g. `qwen3`) warn that they lack the "extension property" with `ALL_ASSISTANT_MESSAGES` — for multi-turn data they recommend one conversation per assistant message with `LAST_ASSISTANT_MESSAGE` instead.
+
 ## Message Formats
 
 ### Text-Only
@@ -153,7 +158,7 @@ messages = [
 from tinker_cookbook.supervised.data import conversation_to_datum
 
 datum = conversation_to_datum(
-    messages=messages,
+    conversation=messages,
     renderer=renderer,
     max_length=2048,
     train_on_what=TrainOnWhat.ALL_ASSISTANT_MESSAGES,
@@ -190,16 +195,16 @@ What is 2+2?<|eot_id|><|start_header_id|>assistant<|end_header_id|>
 
 ## Vision Renderers
 
-For VLMs (Qwen3-VL):
+For vision-capable models (Qwen3.5/3.6, Kimi K2.x):
 
 ```python
 from tinker_cookbook.image_processing_utils import get_image_processor
 
-model_name = "Qwen/Qwen3-VL-235B-A22B-Instruct"
+model_name = "Qwen/Qwen3.6-35B-A3B"
 tokenizer = get_tokenizer(model_name)
 image_processor = get_image_processor(model_name)
 
-renderer = renderers.Qwen3VLInstructRenderer(tokenizer, image_processor)
+renderer = get_renderer(get_recommended_renderer_name(model_name), tokenizer, image_processor)
 
 messages = [
     {
@@ -226,7 +231,7 @@ class MyDatasetBuilder(ChatDatasetBuilder):
     def __call__(self):
         def map_fn(row):
             return conversation_to_datum(
-                messages=messages,
+                conversation=messages,
                 renderer=self.renderer,  # Auto-created from common_config
                 max_length=self.common_config.max_length,
                 train_on_what=self.common_config.train_on_what,

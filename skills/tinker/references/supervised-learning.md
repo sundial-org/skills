@@ -19,7 +19,7 @@ from tinker_cookbook.renderers import TrainOnWhat
 from tinker_cookbook.model_info import get_recommended_renderer_name
 
 def build_config_blueprint() -> chz.Blueprint[train.Config]:
-    model_name = "meta-llama/Llama-3.1-8B"
+    model_name = "Qwen/Qwen3-8B"
     renderer_name = get_recommended_renderer_name(model_name)
 
     common_config = ChatDatasetBuilderCommonConfig(
@@ -36,6 +36,7 @@ def build_config_blueprint() -> chz.Blueprint[train.Config]:
     )
 
     return chz.Blueprint(train.Config).apply({
+        "recipe_name": "my_sft_run",  # required
         "log_path": "/tmp/training",
         "model_name": model_name,
         "dataset_builder": dataset_builder,
@@ -72,7 +73,7 @@ class MyDatasetBuilder(ChatDatasetBuilder):
                 {"role": "assistant", "content": row["completion"]},
             ]
             return conversation_to_datum(
-                messages=messages,
+                conversation=messages,
                 renderer=self.renderer,
                 max_length=self.common_config.max_length,
                 train_on_what=self.common_config.train_on_what,
@@ -116,7 +117,7 @@ class StreamingDatasetBuilder(ChatDatasetBuilder):
                 {"role": "assistant", "content": row["response"]},
             ]
             return conversation_to_datum(
-                messages=messages,
+                conversation=messages,
                 renderer=self.renderer,
                 max_length=self.common_config.max_length,
                 train_on_what=self.common_config.train_on_what,
@@ -166,8 +167,7 @@ Use `LAST_ASSISTANT_MESSAGE` for:
 
 ```python
 from tinker_cookbook.supervised.types import SupervisedDataset
-from tinker.types import Datum, ModelInput, TensorData
-import numpy as np
+from tinker_cookbook.supervised.data import conversation_to_datum
 
 class CustomDataset(SupervisedDataset):
     def __init__(self, config):
@@ -182,16 +182,13 @@ class CustomDataset(SupervisedDataset):
     def __iter__(self):
         for item in self.data:
             messages = self._preprocess(item)
-            example = self.renderer.build_supervised_example(
-                messages=messages,
+            # conversation_to_datum builds the full Datum (target_tokens + weights);
+            # build_supervised_example returns only (ModelInput, weights)
+            yield conversation_to_datum(
+                conversation=messages,
+                renderer=self.renderer,
+                max_length=self.config.max_length,
                 train_on_what=TrainOnWhat.ALL_ASSISTANT_MESSAGES,
-            )
-            yield Datum(
-                model_input=ModelInput([example.chunk]),
-                loss_fn_inputs={
-                    "target_tokens": TensorData.from_numpy(np.array(example.target_tokens, dtype=np.int64)),
-                    "weights": TensorData.from_numpy(np.array(example.weights, dtype=np.float32)),
-                },
             )
 ```
 
@@ -202,7 +199,7 @@ class CustomDataset(SupervisedDataset):
 ```python
 from tinker_cookbook.hyperparam_utils import get_lr
 
-model_name = "meta-llama/Llama-3.2-1B"
+model_name = "Qwen/Qwen3.5-4B"
 recommended_lr = get_lr(model_name)
 ```
 

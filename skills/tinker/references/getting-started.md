@@ -12,7 +12,7 @@ for item in service_client.get_server_capabilities().supported_models:
 
 # Create training client
 training_client = service_client.create_lora_training_client(
-    base_model="Qwen/Qwen3-VL-30B-A3B-Instruct",
+    base_model="Qwen/Qwen3.6-35B-A3B",
     rank=32,
 )
 

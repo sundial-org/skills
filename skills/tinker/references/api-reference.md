@@ -56,7 +56,7 @@ types.Datum(
 types.ModelInput.from_ints(tokens=[1, 2, 3])  # From token list
 types.ModelInput(chunks=[EncodedTextChunk, ImageChunk, ...])  # Multi-modal
 model_input.to_ints()  # Convert to token list
-model_input.length()   # Total context length
+model_input.length   # Total context length (property)
 ```
 
 ### AdamParams
@@ -65,7 +65,7 @@ types.AdamParams(
     learning_rate=1e-4,
     beta1=0.9,
     beta2=0.95,
-    eps=1e-8,
+    eps=1e-12,  # default
     weight_decay=0.0,
     grad_clip_norm=0.0,  # 0 = no clipping
 )

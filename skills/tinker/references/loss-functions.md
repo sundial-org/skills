@@ -94,7 +94,7 @@ def custom_loss(data: list[Datum], logprobs: list[torch.Tensor]) -> tuple[torch.
     loss = (logprobs ** 2).sum()
     return loss, {"custom_loss": loss.item()}
 
-loss, metrics = training_client.forward_backward_custom(data, custom_loss)
+result = training_client.forward_backward_custom(data, custom_loss).result()
 ```
 
 ### Multi-Sequence Loss

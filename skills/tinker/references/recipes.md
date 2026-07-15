@@ -14,7 +14,7 @@ from tinker_cookbook.supervised.data import FromConversationFileBuilder
 from tinker_cookbook.supervised.types import ChatDatasetBuilderCommonConfig
 
 def build_config_blueprint() -> chz.Blueprint[train.Config]:
-    model_name = "meta-llama/Llama-3.1-8B"
+    model_name = "Qwen/Qwen3-8B"
     renderer_name = model_info.get_recommended_renderer_name(model_name)
     common_config = ChatDatasetBuilderCommonConfig(
         model_name_for_tokenizer=model_name,
@@ -65,7 +65,7 @@ from tinker_cookbook.tokenizer_utils import get_tokenizer
 @chz.chz
 class Config:
     log_path: str = "/tmp/tinker-examples/sl-loop"
-    model_name: str = "meta-llama/Llama-3.1-8B"
+    model_name: str = "Qwen/Qwen3-8B"
     batch_size: int = 128
     learning_rate: float = 1e-4
     max_length: int = 32768
@@ -131,7 +131,7 @@ from tinker_cookbook.recipes.math_rl.math_env import Gsm8kDatasetBuilder
 from tinker_cookbook.rl import train
 
 def build_config_blueprint() -> chz.Blueprint[train.Config]:
-    model_name = "meta-llama/Llama-3.1-8B"
+    model_name = "Qwen/Qwen3-8B"
     renderer_name = model_info.get_recommended_renderer_name(model_name)
     builder = Gsm8kDatasetBuilder(
         batch_size=128,
@@ -173,7 +173,7 @@ from tinker_cookbook.tokenizer_utils import get_tokenizer
 
 @chz.chz
 class Config:
-    model_name: str = "meta-llama/Llama-3.1-8B"
+    model_name: str = "Qwen/Qwen3-8B"
     batch_size: int = 128
     group_size: int = 16
     learning_rate: float = 4e-5

@@ -1,6 +1,6 @@
 ---
 name: tinker
-description: Fine-tune LLMs using the Tinker API. Covers supervised fine-tuning, reinforcement learning, LoRA training, vision-language models, and both high-level Cookbook patterns and low-level API usage.
+description: Fine-tune LLMs using the Tinker API. Covers supervised fine-tuning, reinforcement learning, LoRA training, multimodal models including Thinking Machines' Inkling (vision, audio, thinking effort), and both high-level Cookbook patterns and low-level API usage.
 ---
 
 # Tinker API - LLM Fine-Tuning
@@ -11,7 +11,8 @@ Tinker is a training API for large language models from Thinking Machines Lab. I
 
 - **Supervised Fine-Tuning (SFT)**: Train models on instruction/completion pairs
 - **Reinforcement Learning (RL)**: PPO and policy gradient losses; cookbook patterns include GRPO-like group rollouts/advantage centering
-- **Vision-Language Models**: VLM support via Qwen3-VL
+- **Multimodal Models**: vision via Qwen3.5/3.6 and Kimi K2.x; vision + audio via Inkling
+- **Inkling**: Thinking Machines' own open-weights MoE model (975B/41B active, released July 2026) with text/image/audio inputs and tunable thinking effort
 - **LoRA Training**: Efficient parameter-efficient fine-tuning
 
 Two abstraction levels:
@@ -29,6 +30,7 @@ Two abstraction levels:
 | Loss Functions | [Loss Functions](references/loss-functions.md) |
 | Chat Templates | [Rendering](references/rendering.md) |
 | Models & LoRA | [Models & LoRA](references/models-and-lora.md) |
+| Inkling (multimodal, thinking effort) | [Inkling](references/inkling.md) |
 | Example Scripts | [Recipes](references/recipes.md) |
 
 ## Installation
@@ -48,7 +50,7 @@ from tinker import types
 # Create clients
 service_client = tinker.ServiceClient()
 training_client = service_client.create_lora_training_client(
-    base_model="Qwen/Qwen3-30B-A3B", rank=32
+    base_model="Qwen/Qwen3.6-35B-A3B", rank=32
 )
 tokenizer = training_client.get_tokenizer()
 
@@ -117,7 +119,8 @@ from tinker_cookbook.tokenizer_utils import get_tokenizer
 | Large datasets (>1M) | `StreamingSupervisedDatasetFromHFDataset` |
 | RL / GRPO | Cookbook RL patterns |
 | Research / custom loops | Low-level `forward_backward()` + `optim_step()` |
-| Vision-language | Qwen3-VL + `ImageChunk` |
+| Vision-language | Inkling or Qwen3.5/3.6 vision models |
+| Audio / thinking-effort control | Inkling + `tml-renderers` ([Inkling](references/inkling.md)) |
 
 ## External Resources
 

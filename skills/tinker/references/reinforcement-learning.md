@@ -6,7 +6,7 @@
 python -m tinker_cookbook.recipes.rl_basic
 ```
 
-Fine-tunes Llama-3.1-8B on GSM8K with reward:
+Fine-tunes Qwen3-8B on GSM8K with reward:
 ```
 1[answer correct] + 0.1 * (1[format correct] - 1)
 ```
@@ -21,7 +21,7 @@ from tinker_cookbook import model_info
 from tinker_cookbook.recipes.math_rl.math_env import Gsm8kDatasetBuilder
 
 def build_config_blueprint() -> chz.Blueprint[train.Config]:
-    model_name = "meta-llama/Llama-3.1-8B"
+    model_name = "Qwen/Qwen3-8B"
     renderer_name = model_info.get_recommended_renderer_name(model_name)
 
     builder = Gsm8kDatasetBuilder(
@@ -66,7 +66,7 @@ from tinker_cookbook.tokenizer_utils import get_tokenizer
 
 @chz.chz
 class Config:
-    model_name: str = "meta-llama/Llama-3.1-8B"
+    model_name: str = "Qwen/Qwen3-8B"
     batch_size: int = 128
     group_size: int = 16
     learning_rate: float = 4e-5

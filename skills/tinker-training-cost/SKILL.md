@@ -15,15 +15,15 @@ Use the bundled script to calculate training costs:
 # List available models and pricing
 python scripts/calculate_cost.py --list-models
 
-# Calculate cost for a JSONL dataset
+# Calculate cost for a JSONL dataset (model matches on unambiguous fragment)
 python scripts/calculate_cost.py training_data.jsonl --model Qwen3-8B --epochs 3
 
 # Output as JSON
-python scripts/calculate_cost.py training_data.jsonl --model Llama-3.1-70B --json
+python scripts/calculate_cost.py training_data.jsonl --model Inkling --json
 ```
 
 The script:
-1. Loads the correct tokenizer for the selected model
+1. Loads the correct tokenizer for the selected model (via `tinker-cookbook` if installed, else `transformers`)
 2. Counts tokens in your JSONL file (supports chat, text, and instruction formats)
 3. Calculates the estimated training cost
 
@@ -33,107 +33,61 @@ The script:
 Training Cost = (total_tokens × epochs × train_price_per_million) / 1_000_000
 ```
 
-Where:
-- `total_tokens` = tokens in your training dataset (from tokenization)
-- `epochs` = number of training passes (default: 3)
-- `train_price_per_million` = model-specific training rate from pricing table
-
 ---
 
 ## Tinker Pricing
 
-> **All prices as of January 5, 2026**
-> Source: https://thinkingmachines.ai/tinker/
+> **Prices effective July 17, 2026** (prefill/sample rose ~50%, train ~10% on that date)
+> Source: https://tinker-docs.thinkingmachines.ai/tinker/models/
 
-All prices are in **USD per million tokens**.
-
-| Category | Description |
-|----------|-------------|
-| **Prefill** | Processing input context (inference) |
-| **Sample** | Generating output tokens (inference) |
-| **Train** | Training/fine-tuning tokens |
-
-### Qwen Models
+All prices in **USD per million tokens**. Prefill = input context (inference), Sample = output tokens (inference), Train = training tokens. Cached prefill tokens get an **80% discount**. `:peft:<context>` = extended-context variant.
 
 | Model | Prefill | Sample | Train |
 |-------|---------|--------|-------|
-| Qwen3-4B-Instruct-2507 | $0.07 | $0.22 | $0.22 |
-| Qwen3-8B | $0.13 | $0.40 | $0.40 |
-| Qwen3-30B-A3B | $0.12 | $0.30 | $0.36 |
-| Qwen3-VL-30B-A3B-Instruct | $0.18 | $0.44 | $0.53 |
-| Qwen3-32B | $0.49 | $1.47 | $1.47 |
-| Qwen3-235B-Instruct-2507 | $0.68 | $1.70 | $2.04 |
-| Qwen3-VL-235B-A22B-Instruct | $1.02 | $2.56 | $3.07 |
+| thinkingmachines/Inkling* | $1.87 | $4.68 | $5.61 |
+| thinkingmachines/Inkling:peft:262144* | $3.74 | $9.36 | $11.23 |
+| nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-BF16* | $2.49 | $6.225 | $5.478 |
+| nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-BF16:peft:262144* | $3.32 | $8.30 | $9.96 |
+| nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-BF16* | $0.57 | $1.44 | $1.276 |
+| nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-BF16:peft:262144* | $0.76 | $1.92 | $2.32 |
+| nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16* | $0.195 | $0.495 | $0.44 |
+| moonshotai/Kimi-K2.6 | $2.205 | $5.49 | $4.84 |
+| moonshotai/Kimi-K2.6:peft:131072 | $5.15 | $12.81 | $15.40 |
+| Qwen/Qwen3.6-35B-A3B | $0.54 | $1.335 | $1.177 |
+| Qwen/Qwen3.6-27B | $1.86 | $5.595 | $4.103 |
+| Qwen/Qwen3.5-397B-A17B | $3.00 | $7.50 | $6.60 |
+| Qwen/Qwen3.5-397B-A17B:peft:262144 | $4.00 | $10.00 | $12.00 |
+| Qwen/Qwen3.5-35B-A3B-Base | $0.54 | $1.335 | $1.177 |
+| Qwen/Qwen3.5-9B (+ -Base) | $0.66 | $1.995 | $1.463 |
+| Qwen/Qwen3.5-4B | $0.33 | $1.005 | $0.737 |
+| Qwen/Qwen3-8B | $0.195 | $0.60 | $0.44 |
+| openai/gpt-oss-120b | $0.33 | $0.84 | $0.737 |
+| openai/gpt-oss-120b:peft:131072 | $0.78 | $1.94 | $2.33 |
+| openai/gpt-oss-20b | $0.18 | $0.45 | $0.396 |
+| deepseek-ai/DeepSeek-V3.1 | $1.695 | $4.215 | $3.718 |
 
-### Llama Models
+\* Inkling and Nemotron prices reflect a limited-time 50% discount.
 
-| Model | Prefill | Sample | Train |
-|-------|---------|--------|-------|
-| Llama-3.2-1B | $0.03 | $0.09 | $0.09 |
-| Llama-3.2-3B | $0.06 | $0.18 | $0.18 |
-| Llama-3.1-8B | $0.13 | $0.40 | $0.40 |
-| Llama-3.1-70B | $1.05 | $3.16 | $3.16 |
-
-### DeepSeek Models
-
-| Model | Prefill | Sample | Train |
-|-------|---------|--------|-------|
-| DeepSeek-V3.1 | $1.13 | $2.81 | $3.38 |
-
-### GPT-OSS Models
-
-| Model | Prefill | Sample | Train |
-|-------|---------|--------|-------|
-| GPT-OSS-120B | $0.18 | $0.44 | $0.52 |
-| GPT-OSS-20B | $0.12 | $0.30 | $0.36 |
-
-### Moonshot Models
-
-| Model | Prefill | Sample | Train |
-|-------|---------|--------|-------|
-| Kimi-K2-Thinking | $0.98 | $2.44 | $2.93 |
-
----
-
-## Model-to-Tokenizer Mapping
-
-Use the correct HuggingFace tokenizer for accurate token counting:
-
-| Model | HuggingFace Tokenizer |
-|-------|----------------------|
-| Qwen3-4B-Instruct-2507 | `Qwen/Qwen3-4B` |
-| Qwen3-8B | `Qwen/Qwen3-8B` |
-| Qwen3-30B-A3B | `Qwen/Qwen3-30B-A3B` |
-| Qwen3-32B | `Qwen/Qwen3-32B` |
-| Qwen3-235B-Instruct-2507 | `Qwen/Qwen3-235B-A22B-Instruct` |
-| Qwen3-VL-* | `Qwen/Qwen2.5-VL-7B-Instruct` (shared VL tokenizer) |
-| Llama-3.2-1B | `meta-llama/Llama-3.2-1B-Instruct` |
-| Llama-3.2-3B | `meta-llama/Llama-3.2-3B-Instruct` |
-| Llama-3.1-8B | `meta-llama/Llama-3.1-8B-Instruct` |
-| Llama-3.1-70B | `meta-llama/Llama-3.1-70B-Instruct` |
-| DeepSeek-V3.1 | `deepseek-ai/DeepSeek-V3` |
-| GPT-OSS-* | `Qwen/Qwen3-8B` (compatible tokenizer) |
-| Kimi-K2-Thinking | `moonshotai/Kimi-K2-Instruct` |
+Checkpoint storage: $0.10 per GB per month.
 
 ---
 
 ## Tokenization
 
-The bundled `scripts/calculate_cost.py` handles tokenization automatically. For custom use:
+Every model's tokenizer resolves from its Tinker model ID (verified for all models above):
 
 ```python
-from transformers import AutoTokenizer
+from tinker_cookbook.tokenizer_utils import get_tokenizer  # preferred
+tokenizer = get_tokenizer("Qwen/Qwen3-8B")
 
-# Load the correct tokenizer for your model
+# Or with plain transformers (same IDs, minus any :peft: suffix)
+from transformers import AutoTokenizer
 tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen3-8B", trust_remote_code=True)
 
-# Count tokens
 token_count = len(tokenizer.encode("Your training text here"))
 ```
 
 ### Supported JSONL Formats
-
-The script handles these training data formats:
 
 **Chat format** (recommended):
 ```json
@@ -156,23 +110,20 @@ The script handles these training data formats:
 
 ### Example 1: Qwen3-8B on 1M tokens, 3 epochs
 ```
-Dataset tokens: 1,000,000
 Training tokens: 1,000,000 × 3 = 3,000,000
-Cost: 3.0M × $0.40/M = $1.20
+Cost: 3.0M × $0.44/M = $1.32
 ```
 
-### Example 2: Llama-3.1-70B on 5M tokens, 2 epochs
+### Example 2: Qwen3.6-35B-A3B on 5M tokens, 2 epochs
 ```
-Dataset tokens: 5,000,000
 Training tokens: 5,000,000 × 2 = 10,000,000
-Cost: 10.0M × $3.16/M = $31.60
+Cost: 10.0M × $1.177/M = $11.77
 ```
 
-### Example 3: Qwen3-235B on 2M tokens, 4 epochs
+### Example 3: Inkling on 2M tokens, 4 epochs
 ```
-Dataset tokens: 2,000,000
 Training tokens: 2,000,000 × 4 = 8,000,000
-Cost: 8.0M × $2.04/M = $16.32
+Cost: 8.0M × $5.61/M = $44.88
 ```
 
 ---
@@ -180,6 +131,6 @@ Cost: 8.0M × $2.04/M = $16.32
 ## Important Notes
 
 1. **LoRA Fine-Tuning**: Tinker uses Low-Rank Adaptation (LoRA), not full fine-tuning
-2. **Token Counting**: Always use the model's native tokenizer for accurate counts - different tokenizers produce different token counts for the same text
-3. **Vision Models**: VL models have higher costs due to image processing overhead
-4. **trust_remote_code**: Required for some tokenizers (Qwen, DeepSeek)
+2. **Token Counting**: Always use the model's native tokenizer - different tokenizers produce different counts for the same text
+3. **RL costs more than the train rate alone**: rollouts are billed at sample/prefill rates on top of training tokens
+4. **Multimodal inputs** (Inkling images/audio) add tokens beyond text tokenization

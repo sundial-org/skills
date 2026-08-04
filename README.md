@@ -9,3 +9,5 @@ npx sundial-hub add <skill-name>
 ```
 
 Created by [Sundial](https://sundialhub.com/)
+
+  - [shiny-novel-writer](https://github.com/Shine8592/novel-writer-skills) - Zero-cost Chinese novel generation suite (3 skills). 900K+ chars written, ¥0 API spend.
